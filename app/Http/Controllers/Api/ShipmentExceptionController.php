@@ -22,9 +22,10 @@ class ShipmentExceptionController extends Controller
 
         $validated = $request->validate([
             'type' => ['required', 'string', 'max:60'],
-            'severity' => ['required', 'in:low,medium,high,critical'],
+            'severity' => ['required', 'string'],
             'description' => ['required', 'string'],
             'detected_at' => ['nullable', 'date'],
+            'estimated_delay_hours' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $exception = $this->exceptionService->logException($shipment, $validated, $request->user());
@@ -33,6 +34,22 @@ class ShipmentExceptionController extends Controller
             'message' => 'Shipment exception reported.',
             'exception' => $exception,
         ], 201);
+    }
+
+    public function investigate(Request $request, ShipmentException $exception): JsonResponse
+    {
+        Gate::authorize('manageExceptions', $exception->shipment);
+
+        $validated = $request->validate([
+            'investigation_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $investigating = $this->exceptionService->startInvestigation($exception, $validated, $request->user());
+
+        return response()->json([
+            'message' => 'Incident investigation commenced.',
+            'exception' => $investigating,
+        ]);
     }
 
     public function resolve(Request $request, ShipmentException $exception): JsonResponse

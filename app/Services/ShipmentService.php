@@ -164,6 +164,7 @@ class ShipmentService
                 'is_delayed' => $delayAssessment['is_delayed'],
                 'delay_hours' => $delayAssessment['delay_hours'],
                 'delay_severity' => $delayAssessment['delay_severity'],
+                'delay_reason' => $delayAssessment['delay_reason'],
             ]);
 
             // Save items if provided
@@ -275,6 +276,7 @@ class ShipmentService
             $shipment->is_delayed = $assessment['is_delayed'];
             $shipment->delay_hours = $assessment['delay_hours'];
             $shipment->delay_severity = $assessment['delay_severity'];
+            $shipment->delay_reason = $assessment['delay_reason'];
 
             $shipment->save();
 

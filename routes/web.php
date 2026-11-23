@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/shipments/{shipment}/tracking-events', [TrackingEventController::class, 'store'])->name('tracking-events.store');
         Route::post('/shipments/{shipment}/exceptions', [ShipmentExceptionController::class, 'store'])->name('exceptions.store');
+        Route::post('/exceptions/{exception}/investigate', [ShipmentExceptionController::class, 'investigate'])->name('exceptions.investigate');
         Route::post('/exceptions/{exception}/resolve', [ShipmentExceptionController::class, 'resolve'])->name('exceptions.resolve');
     });
 

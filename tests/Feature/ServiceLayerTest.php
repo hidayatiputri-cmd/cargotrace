@@ -58,28 +58,46 @@ class ServiceLayerTest extends TestCase
             'current_status' => 'in_transit',
         ]);
 
-        // On time
+        // 1. On time (estimated 2 hours before expected)
         $resultOnTime = $this->etaService->evaluateDelay($shipment, $expected->copy()->subHours(2));
         $this->assertFalse($resultOnTime['is_delayed']);
         $this->assertEquals(0, $resultOnTime['delay_hours']);
-        $this->assertEquals('none', $resultOnTime['delay_severity']);
+        $this->assertEquals('NONE', $resultOnTime['delay_severity']);
 
-        // 10 hours delay -> low
-        $resultLow = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(10));
+        // 2. 10 hours delay: within the 12h threshold buffer -> not marked as delayed
+        $resultWithinThreshold = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(10));
+        $this->assertFalse($resultWithinThreshold['is_delayed']);
+        $this->assertEquals(10, $resultWithinThreshold['delay_hours']);
+        $this->assertEquals('NONE', $resultWithinThreshold['delay_severity']);
+        $this->assertStringContainsString('within allowed SLA threshold (12h)', $resultWithinThreshold['delay_reason']);
+
+        // 3. 15 hours delay (15 - 12 = 3h excess -> 0-6h beyond threshold) -> LOW
+        $resultLow = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(15));
         $this->assertTrue($resultLow['is_delayed']);
-        $this->assertEquals('low', $resultLow['delay_severity']);
+        $this->assertEquals(15, $resultLow['delay_hours']);
+        $this->assertEquals(3, $resultLow['excess_hours']);
+        $this->assertEquals('LOW', $resultLow['delay_severity']);
+        $this->assertStringContainsString('Exceeds 12h SLA threshold by 3h', $resultLow['delay_reason']);
 
-        // 24 hours delay -> medium
+        // 4. 24 hours delay (24 - 12 = 12h excess -> >6-24h beyond threshold) -> MEDIUM
         $resultMed = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(24));
-        $this->assertEquals('medium', $resultMed['delay_severity']);
+        $this->assertTrue($resultMed['is_delayed']);
+        $this->assertEquals(24, $resultMed['delay_hours']);
+        $this->assertEquals(12, $resultMed['excess_hours']);
+        $this->assertEquals('MEDIUM', $resultMed['delay_severity']);
 
-        // 48 hours delay -> high
+        // 5. 48 hours delay (48 - 12 = 36h excess -> >24h beyond threshold) -> HIGH
         $resultHigh = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(48));
-        $this->assertEquals('high', $resultHigh['delay_severity']);
+        $this->assertTrue($resultHigh['is_delayed']);
+        $this->assertEquals(48, $resultHigh['delay_hours']);
+        $this->assertEquals(36, $resultHigh['excess_hours']);
+        $this->assertEquals('HIGH', $resultHigh['delay_severity']);
 
-        // 80 hours delay -> critical
-        $resultCrit = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(80));
-        $this->assertEquals('critical', $resultCrit['delay_severity']);
+        // 6. Test with custom threshold parameter (e.g. 6 hours threshold)
+        $resultCustom = $this->etaService->evaluateDelay($shipment, $expected->copy()->addHours(10), customThreshold: 6);
+        $this->assertTrue($resultCustom['is_delayed']);
+        $this->assertEquals(4, $resultCustom['excess_hours']); // 10 - 6 = 4h excess (LOW)
+        $this->assertEquals('LOW', $resultCustom['delay_severity']);
     }
 
     public function test_shipment_service_creates_shipment_with_items_and_audit(): void
@@ -157,23 +175,88 @@ class ServiceLayerTest extends TestCase
             'current_status' => 'in_transit',
         ]);
 
+        // 1. Log Exception (OPEN)
         $exception = $this->exceptionService->logException($shipment, [
-            'type' => 'weather_delay',
-            'severity' => 'high',
+            'type' => 'WEATHER_DELAY',
+            'severity' => 'HIGH',
             'description' => 'Tropical cyclone in maritime lane',
             'detected_at' => now(),
         ], $this->operator);
 
         $this->assertEquals('exception', $shipment->fresh()->current_status);
         $this->assertTrue($shipment->fresh()->is_delayed);
-        $this->assertEquals('open', $exception->status);
+        $this->assertEquals(ShipmentException::STATUS_OPEN, $exception->status);
+        $this->assertDatabaseHas('tracking_events', [
+            'shipment_id' => $shipment->id,
+            'event_type' => 'weather_delay',
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->customer->id,
+            'shipment_id' => $shipment->id,
+        ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'report_exception',
+            'entity_id' => $exception->id,
+        ]);
 
-        // Resolve
-        $resolved = $this->exceptionService->resolveException($exception, [
+        // 2. Start Investigation (OPEN -> INVESTIGATING)
+        $investigated = $this->exceptionService->startInvestigation($exception, [
+            'investigation_notes' => 'Coast guard consulted; re-routing vessel 200 nautical miles south.',
+        ], $this->operator);
+
+        $this->assertEquals(ShipmentException::STATUS_INVESTIGATING, $investigated->status);
+        $this->assertStringContainsString('Coast guard consulted', $investigated->description);
+        $this->assertDatabaseHas('tracking_events', [
+            'shipment_id' => $shipment->id,
+            'event_type' => 'investigation_active',
+        ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'investigate_exception',
+            'entity_id' => $exception->id,
+        ]);
+
+        // 3. Resolve Exception (INVESTIGATING -> RESOLVED)
+        $resolved = $this->exceptionService->resolveException($investigated, [
             'resolution_notes' => 'Storm bypassed, vessel resumed standard course.',
         ], $this->operator);
 
-        $this->assertEquals('resolved', $resolved->status);
+        $this->assertEquals(ShipmentException::STATUS_RESOLVED, $resolved->status);
+        $this->assertNotNull($resolved->resolved_at);
+        $this->assertStringContainsString('Storm bypassed', $resolved->description);
         $this->assertEquals('in_transit', $shipment->fresh()->current_status);
+        $this->assertDatabaseHas('tracking_events', [
+            'shipment_id' => $shipment->id,
+            'event_type' => 'exception_resolved',
+        ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'resolve_exception',
+            'entity_id' => $exception->id,
+        ]);
+    }
+
+    public function test_exception_service_validates_canonical_exception_types(): void
+    {
+        $shipment = Shipment::create([
+            'shipment_number' => 'CT-EXC-VAL',
+            'customer_id' => $this->customer->id,
+            'carrier_id' => $this->carrier->id,
+            'origin_location_id' => $this->origin->id,
+            'destination_location_id' => $this->destination->id,
+            'cargo_type' => 'Pharma',
+            'weight' => 200,
+            'volume' => 1,
+            'expected_departure' => now(),
+            'expected_arrival' => now()->addDays(2),
+            'current_status' => 'in_transit',
+        ]);
+
+        // Invalid type throws ValidationException
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+
+        $this->exceptionService->logException($shipment, [
+            'type' => 'UNSUPPORTED_RANDOM_TYPE',
+            'severity' => 'LOW',
+            'description' => 'Should fail',
+        ], $this->operator);
     }
 }

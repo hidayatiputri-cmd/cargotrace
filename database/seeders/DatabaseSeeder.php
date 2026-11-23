@@ -200,7 +200,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'in_transit',
                 'is_delayed' => false,
                 'delay_hours' => 0,
-                'delay_severity' => 'none',
+                'delay_severity' => 'NONE',
+                'delay_reason' => 'On schedule. Estimated arrival is on or ahead of expected arrival.',
             ]
         );
 
@@ -272,7 +273,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'exception',
                 'is_delayed' => true,
                 'delay_hours' => 48,
-                'delay_severity' => 'high',
+                'delay_severity' => 'HIGH',
+                'delay_reason' => 'Exceeds 12h SLA threshold by 36h (Total delay: 48h). Severity: HIGH.',
             ]
         );
 
@@ -319,9 +321,9 @@ class DatabaseSeeder extends Seeder
 
         $sh2->exceptions()->delete();
         $sh2->exceptions()->create([
-            'type' => 'weather_delay',
-            'severity' => 'high',
-            'status' => 'open',
+            'type' => ShipmentException::TYPE_WEATHER_DELAY,
+            'severity' => 'HIGH',
+            'status' => ShipmentException::STATUS_OPEN,
             'description' => 'Severe Category 4 North Pacific cyclone forced vessel MSC Gülsün to alter course 400 nautical miles south, resulting in approximately 48 hours transit delay.',
             'detected_at' => Carbon::now()->subDays(2)->setHour(10)->setMinute(0),
             'resolved_at' => null,
@@ -345,7 +347,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'delivered',
                 'is_delayed' => false,
                 'delay_hours' => 0,
-                'delay_severity' => 'none',
+                'delay_severity' => 'NONE',
+                'delay_reason' => 'Delivered ahead of expected schedule.',
             ]
         );
 
@@ -426,7 +429,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'in_transit',
                 'is_delayed' => false,
                 'delay_hours' => 0,
-                'delay_severity' => 'none',
+                'delay_severity' => 'NONE',
+                'delay_reason' => 'On schedule. Estimated arrival is on or ahead of expected arrival.',
             ]
         );
 
@@ -477,7 +481,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'customs_hold',
                 'is_delayed' => true,
                 'delay_hours' => 24,
-                'delay_severity' => 'medium',
+                'delay_severity' => 'MEDIUM',
+                'delay_reason' => 'Exceeds 12h SLA threshold by 12h (Total delay: 24h). Severity: MEDIUM.',
             ]
         );
 
@@ -513,9 +518,9 @@ class DatabaseSeeder extends Seeder
 
         $sh5->exceptions()->delete();
         $sh5->exceptions()->create([
-            'type' => 'customs_hold',
-            'severity' => 'medium',
-            'status' => 'under_review',
+            'type' => ShipmentException::TYPE_CUSTOMS_HOLD,
+            'severity' => 'MEDIUM',
+            'status' => ShipmentException::STATUS_INVESTIGATING,
             'description' => 'Customs documentation audit: Dual-use electronic component declaration requires supplementary manufacturer compliance certificate.',
             'detected_at' => Carbon::now()->subHours(18),
             'resolved_at' => null,
@@ -539,7 +544,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'booked',
                 'is_delayed' => false,
                 'delay_hours' => 0,
-                'delay_severity' => 'none',
+                'delay_severity' => 'NONE',
+                'delay_reason' => 'On schedule. Booking confirmed.',
             ]
         );
 
@@ -578,7 +584,8 @@ class DatabaseSeeder extends Seeder
                 'current_status' => 'picked_up',
                 'is_delayed' => false,
                 'delay_hours' => 0,
-                'delay_severity' => 'none',
+                'delay_severity' => 'NONE',
+                'delay_reason' => 'On schedule. Cargo picked up and awaiting dispatch.',
             ]
         );
 

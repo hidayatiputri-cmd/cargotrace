@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/shipments/{shipment}', [ShipmentController::class, 'update']);
         Route::post('/shipments/{shipment}/tracking-events', [TrackingEventController::class, 'store']);
         Route::post('/shipments/{shipment}/exceptions', [ShipmentExceptionController::class, 'store']);
+        Route::post('/exceptions/{exception}/investigate', [ShipmentExceptionController::class, 'investigate']);
         Route::post('/exceptions/{exception}/resolve', [ShipmentExceptionController::class, 'resolve']);
     });
 

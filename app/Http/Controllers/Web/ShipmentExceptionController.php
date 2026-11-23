@@ -22,15 +22,30 @@ class ShipmentExceptionController extends Controller
 
         $validated = $request->validate([
             'type' => ['required', 'string', 'max:60'],
-            'severity' => ['required', 'in:low,medium,high,critical'],
+            'severity' => ['required', 'string'],
             'description' => ['required', 'string'],
             'detected_at' => ['required', 'date'],
+            'estimated_delay_hours' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $this->exceptionService->logException($shipment, $validated, $request->user());
 
         return redirect()->route('shipments.show', $shipment)
-            ->with('warning', 'Shipment exception reported and flagged.');
+            ->with('warning', 'Shipment exception reported and flagged on timeline.');
+    }
+
+    public function investigate(Request $request, ShipmentException $exception): RedirectResponse
+    {
+        Gate::authorize('manageExceptions', $exception->shipment);
+
+        $validated = $request->validate([
+            'investigation_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $this->exceptionService->startInvestigation($exception, $validated, $request->user());
+
+        return redirect()->route('shipments.show', $exception->shipment)
+            ->with('info', 'Incident investigation commenced and logged to timeline.');
     }
 
     public function resolve(Request $request, ShipmentException $exception): RedirectResponse
@@ -44,6 +59,6 @@ class ShipmentExceptionController extends Controller
         $this->exceptionService->resolveException($exception, $validated, $request->user());
 
         return redirect()->route('shipments.show', $exception->shipment)
-            ->with('success', 'Shipment exception resolved.');
+            ->with('success', 'Shipment exception resolved and cleared.');
     }
 }

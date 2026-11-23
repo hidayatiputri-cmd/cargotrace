@@ -117,16 +117,18 @@ class TrackingService
                 $shipment->is_delayed = $assessment['is_delayed'];
                 $shipment->delay_hours = $assessment['delay_hours'];
                 $shipment->delay_severity = $assessment['delay_severity'];
+                $shipment->delay_reason = $assessment['delay_reason'];
                 $shipment->estimated_arrival = $assessment['estimated_arrival'];
             } elseif ($newStatus === Shipment::STATUS_DELIVERED) {
                 $shipment->is_delayed = false;
-                $shipment->delay_severity = 'none';
-            } elseif ($newStatus === Shipment::STATUS_EXCEPTION) {
-                $shipment->is_delayed = true;
-                if ($shipment->delay_hours === 0) {
-                    $shipment->delay_hours = 24;
-                    $shipment->delay_severity = 'medium';
-                }
+                $shipment->delay_severity = 'NONE';
+                $shipment->delay_reason = 'Shipment finalized and delivered to consignee.';
+            } else {
+                $assessment = $this->etaService->evaluateDelay($shipment);
+                $shipment->is_delayed = $assessment['is_delayed'];
+                $shipment->delay_hours = $assessment['delay_hours'];
+                $shipment->delay_severity = $assessment['delay_severity'];
+                $shipment->delay_reason = $assessment['delay_reason'];
             }
 
             $shipment->save();

@@ -37,6 +37,7 @@ class Shipment extends Model
         'is_delayed',
         'delay_hours',
         'delay_severity',
+        'delay_reason',
     ];
 
     protected function casts(): array
@@ -181,7 +182,14 @@ class Shipment extends Model
 
     public function openExceptions(): HasMany
     {
-        return $this->hasMany(ShipmentException::class)->whereIn('status', ['open', 'under_review']);
+        return $this->hasMany(ShipmentException::class)
+            ->whereIn('status', [
+                ShipmentException::STATUS_OPEN,
+                ShipmentException::STATUS_INVESTIGATING,
+                'open',
+                'under_review',
+                'investigating'
+            ]);
     }
 
     public function notifications(): HasMany

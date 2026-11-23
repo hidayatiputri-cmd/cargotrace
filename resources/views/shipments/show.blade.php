@@ -54,21 +54,71 @@
         </div>
     </div>
 
-    <!-- Delay Alert Banner (if delayed) -->
+    <!-- Deterministic Delay / SLA Health Banner -->
+    @php
+        $thresholdHours = (int) config('cargotrace.delay_threshold_hours', 12);
+        $excessHours = max(0, $shipment->delay_hours - $thresholdHours);
+    @endphp
     @if($shipment->is_delayed)
-        <div class="p-4 rounded-2xl bg-rose-950/70 border border-rose-800 shadow-xl flex items-start space-x-3 text-rose-200 text-xs">
-            <svg class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-950/80 via-slate-900 to-rose-950/80 border border-rose-800 shadow-xl flex items-start space-x-3 text-rose-200 text-xs">
+            <div class="p-2 rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
             <div class="flex-1">
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-rose-300 text-sm">Shipment Schedule Exception — Delay Detected</span>
-                    <span class="px-2 py-0.5 rounded uppercase font-bold text-[10px] bg-rose-900 text-rose-200 border border-rose-700">Severity: {{ $shipment->delay_severity }}</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-bold text-rose-300 text-sm">Schedule Exception Detected</span>
+                    <span class="px-2.5 py-0.5 rounded-full uppercase font-black text-[10px]
+                        @if(strtoupper($shipment->delay_severity) === 'HIGH') bg-rose-900 text-rose-200 border border-rose-600
+                        @elseif(strtoupper($shipment->delay_severity) === 'MEDIUM') bg-amber-900 text-amber-200 border border-amber-600
+                        @else bg-blue-900 text-blue-200 border border-blue-600 @endif">
+                        Severity: {{ strtoupper($shipment->delay_severity) }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-200 border border-slate-700">
+                        +{{ $shipment->delay_hours }}h Total Delay
+                    </span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950/60 text-rose-300 border border-rose-800">
+                        +{{ $excessHours }}h beyond {{ $thresholdHours }}h SLA Threshold
+                    </span>
                 </div>
-                <p class="mt-1 text-slate-300">
-                    Current estimated transit delay is <strong class="text-rose-400">+{{ $shipment->delay_hours }} hours</strong> behind contractual schedule.
-                    Revised ETA is <strong>{{ $shipment->estimated_arrival?->format('l, F j, Y — H:i T') }}</strong> (originally expected {{ $shipment->expected_arrival->format('M d, H:i') }}).
+
+                <!-- Deterministic Calculation Reason -->
+                <p class="mt-2 text-slate-200 font-medium">
+                    {{ $shipment->delay_reason ?? "Total delay exceeds configured SLA threshold ({$thresholdHours}h) by {$excessHours}h." }}
                 </p>
+
+                <div class="mt-2 text-[11px] text-slate-400 flex flex-wrap items-center gap-4">
+                    <span>Expected Arrival: <strong class="text-white">{{ $shipment->expected_arrival->format('M d, Y H:i') }}</strong></span>
+                    <span>Revised ETA: <strong class="text-rose-400">{{ $shipment->estimated_arrival?->format('M d, Y H:i') ?? 'N/A' }}</strong></span>
+                    <span>SLA Threshold: <strong class="text-white">{{ $thresholdHours }} Hours</strong></span>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-900/60 shadow-xl flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-3">
+                <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </span>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-white text-sm">Schedule Health: On Schedule</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800">
+                            SLA COMPLIANT
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">
+                            Threshold: {{ $thresholdHours }}h
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">
+                        {{ $shipment->delay_reason ?? "Estimated arrival is within contractual SLA tolerance (Buffer: {$thresholdHours} hours)." }}
+                    </p>
+                </div>
+            </div>
+            <div class="text-right hidden sm:block">
+                <div class="text-[11px] text-slate-400">Target ETA:</div>
+                <div class="font-bold text-emerald-400 text-xs">{{ $shipment->estimated_arrival ? $shipment->estimated_arrival->format('M d, Y H:i') : $shipment->expected_arrival->format('M d, Y H:i') }}</div>
             </div>
         </div>
     @endif
@@ -78,7 +128,6 @@
         $statusOrder = ['created', 'booked', 'picked_up', 'in_transit', 'delivered'];
         $currentIdx = array_search(strtolower($shipment->current_status), $statusOrder, true);
         if ($currentIdx === false) {
-            // Exceptions or holds usually occur while in transit
             $currentIdx = 3;
         }
     @endphp
@@ -126,7 +175,7 @@
         $latestLocationEv = $shipment->latestLocationEvent();
     @endphp
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Current Location Card (High Priority) -->
+        <!-- Current Location Card -->
         <div class="bg-gradient-to-br from-slate-900 to-slate-950 p-4 rounded-2xl border border-cyan-800/60 shadow-xl relative overflow-hidden">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider flex items-center space-x-1.5">
@@ -209,56 +258,118 @@
         <div id="shipmentMap" class="h-96 w-full bg-slate-950"></div>
     </div>
 
-    <!-- Active Exceptions Section (if any exist) -->
-    @if($shipment->exceptions->isNotEmpty())
-        <div class="bg-slate-900/90 rounded-2xl border border-slate-800 shadow-xl p-5">
-            <h3 class="text-sm font-bold text-white flex items-center space-x-2 mb-4">
-                <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                <span>Reported Shipment Incidents & Exceptions</span>
-            </h3>
+    <!-- Operator Exception Management Section -->
+    <div class="bg-slate-900/90 rounded-2xl border border-slate-800 shadow-xl p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    <span>Operational Exception Management</span>
+                </h3>
+                <p class="text-[11px] text-slate-400">Lifecycle: <strong class="text-amber-400">OPEN</strong> &rarr; <strong class="text-purple-400">INVESTIGATING</strong> &rarr; <strong class="text-emerald-400">RESOLVED</strong></p>
+            </div>
 
-            <div class="space-y-3">
-                @foreach($shipment->exceptions as $exc)
-                    <div class="p-4 rounded-xl {{ $exc->status === 'resolved' ? 'bg-slate-950/70 border-slate-800' : 'bg-rose-950/30 border-rose-900/60' }} border transition">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div class="flex items-center space-x-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold
-                                    @if($exc->severity === 'critical') bg-rose-900 text-rose-200 border border-rose-700
-                                    @elseif($exc->severity === 'high') bg-amber-900 text-amber-200 border border-amber-700
-                                    @else bg-blue-900 text-blue-200 border border-blue-700 @endif">
-                                    {{ $exc->severity }} Severity
-                                </span>
-                                <span class="text-xs font-bold text-white capitalize">{{ str_replace('_', ' ', $exc->type) }}</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded font-semibold {{ $exc->status === 'resolved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800' }}">
-                                    {{ $exc->status }}
-                                </span>
-                            </div>
+            @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
+                <button type="button" onclick="document.getElementById('exceptionModal').classList.remove('hidden')"
+                    class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-white font-bold text-xs shadow transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Report Exception</span>
+                </button>
+            @endif
+        </div>
 
-                            <div class="text-[11px] text-slate-400">
-                                Detected: {{ $exc->detected_at->format('M d, Y H:i') }}
-                                @if($exc->resolved_at) &bull; Resolved: {{ $exc->resolved_at->format('M d, Y H:i') }} @endif
-                            </div>
+        <div class="mt-4 space-y-4">
+            @forelse($shipment->exceptions as $exc)
+                @php
+                    $excStatus = strtoupper(trim($exc->status));
+                    $excSeverity = strtoupper(trim($exc->severity));
+                @endphp
+                <div class="p-4 rounded-xl border transition
+                    @if($excStatus === 'RESOLVED') bg-slate-950/70 border-slate-800
+                    @elseif($excStatus === 'INVESTIGATING') bg-purple-950/20 border-purple-800/70
+                    @else bg-rose-950/25 border-rose-900/70 @endif">
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Type Badge -->
+                            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold text-white bg-slate-800 border border-slate-700">
+                                {{ $exc->type }}
+                            </span>
+
+                            <!-- Severity Badge -->
+                            <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold
+                                @if($excSeverity === 'CRITICAL' || $excSeverity === 'HIGH') bg-rose-900 text-rose-200 border border-rose-700
+                                @elseif($excSeverity === 'MEDIUM') bg-amber-900 text-amber-200 border border-amber-700
+                                @else bg-blue-900 text-blue-200 border border-blue-700 @endif">
+                                {{ $excSeverity }} Severity
+                            </span>
+
+                            <!-- Status Workflow Badge -->
+                            <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider
+                                @if($excStatus === 'RESOLVED') bg-emerald-950 text-emerald-400 border border-emerald-800
+                                @elseif($excStatus === 'INVESTIGATING') bg-purple-950 text-purple-300 border border-purple-800 animate-pulse
+                                @else bg-rose-950 text-rose-300 border border-rose-800 @endif">
+                                <span>{{ $excStatus }}</span>
+                            </span>
                         </div>
 
-                        <p class="mt-2 text-xs text-slate-300 whitespace-pre-line">{{ $exc->description }}</p>
+                        <div class="text-[11px] text-slate-400">
+                            Detected: <strong class="text-slate-300">{{ $exc->detected_at->format('M d, Y H:i') }}</strong>
+                            @if($exc->resolved_at) &bull; Cleared: <strong class="text-emerald-400">{{ $exc->resolved_at->format('M d, Y H:i') }}</strong> @endif
+                        </div>
+                    </div>
 
-                        @if($exc->status !== 'resolved' && (auth()->user()->isAdmin() || auth()->user()->isOperator()))
-                            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-end">
-                                <form action="{{ route('exceptions.resolve', $exc) }}" method="POST" class="flex items-center space-x-2">
+                    <p class="mt-2.5 text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans">{{ $exc->description }}</p>
+
+                    <!-- Operator Action Controls: OPEN -> INVESTIGATING -> RESOLVED -->
+                    @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
+                        <div class="mt-3.5 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-end gap-2">
+                            @if($excStatus === 'OPEN')
+                                <!-- Form to Start Investigation -->
+                                <form action="{{ route('exceptions.investigate', $exc) }}" method="POST" class="inline-flex items-center space-x-1.5">
                                     @csrf
-                                    <input type="text" name="resolution_notes" placeholder="Resolution notes (e.g. Cleared by Port Authority)..." required
-                                        class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 w-64">
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
+                                    <input type="text" name="investigation_notes" placeholder="Inquiry notes (e.g. Contacting customs broker)..." required
+                                        class="px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500 w-56">
+                                    <button type="submit" class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow transition">
+                                        Start Investigation
+                                    </button>
+                                </form>
+
+                                <!-- Direct Resolve -->
+                                <form action="{{ route('exceptions.resolve', $exc) }}" method="POST" class="inline-flex items-center space-x-1.5">
+                                    @csrf
+                                    <input type="text" name="resolution_notes" placeholder="Quick resolution notes..." required
+                                        class="px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48">
+                                    <button type="submit" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
+                                        Resolve
+                                    </button>
+                                </form>
+                            @elseif($excStatus === 'INVESTIGATING')
+                                <!-- Form to Resolve Investigation -->
+                                <form action="{{ route('exceptions.resolve', $exc) }}" method="POST" class="inline-flex items-center space-x-2">
+                                    @csrf
+                                    <input type="text" name="resolution_notes" placeholder="Final resolution notes (e.g. Export certificate verified)..." required
+                                        class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64">
+                                    <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
                                         Mark Resolved
                                     </button>
                                 </form>
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
+                            @else
+                                <span class="text-[11px] text-emerald-400 font-semibold flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span>Incident Resolved & Closed</span>
+                                </span>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="text-center py-6 text-xs text-slate-500 bg-slate-950/40 rounded-xl border border-slate-850">
+                    No active exceptions or operational holds reported on this consignment.
+                </div>
+            @endforelse
         </div>
-    @endif
+    </div>
 
     <!-- Two Columns: Manifest Items & Chronological Historical Timeline -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -291,7 +402,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-sm font-bold text-white">Historical Tracking Timeline</h3>
-                    <p class="text-[11px] text-slate-400">Append-only immutable record of vessel milestones & telemetry</p>
+                    <p class="text-[11px] text-slate-400">Chronological telemetry, milestones, and exception updates</p>
                 </div>
                 <span class="text-xs text-slate-400 font-mono bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
                     {{ $timeline->count() }} Historical Events
@@ -391,12 +502,10 @@
                     Lifecycle Status Transition *
                 </label>
                 <select name="status" id="eventStatus" required class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <!-- Option to keep current status -->
                     <option value="{{ $shipment->current_status }}" selected>
                         Maintain Current Status: {{ strtoupper(str_replace('_', ' ', $shipment->current_status)) }} (Waypoint Checkpoint)
                     </option>
 
-                    <!-- Allowed next progression statuses -->
                     @if($shipment->current_status === 'created')
                         <option value="booked">&rarr; Transition to: BOOKED</option>
                         <option value="cancelled">&rarr; Transition to: CANCELLED</option>
@@ -475,6 +584,12 @@
                 </div>
             </div>
 
+            <div>
+                <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Revised Estimated Arrival (Optional)</label>
+                <input type="datetime-local" name="estimated_arrival" value="{{ $shipment->estimated_arrival?->format('Y-m-d\TH:i') }}"
+                    class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+            </div>
+
             <!-- Description -->
             <div>
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Operational Description / Notes *</label>
@@ -510,7 +625,10 @@
 <div id="exceptionModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 class="text-base font-bold text-white">Log Shipment Exception</h3>
+            <div>
+                <h3 class="text-base font-bold text-white">Log Operational Exception</h3>
+                <p class="text-[11px] text-slate-400">Flag customs holds, weather delays, damage or congestion</p>
+            </div>
             <button type="button" onclick="document.getElementById('exceptionModal').classList.add('hidden')" class="text-slate-400 hover:text-white">&times;</button>
         </div>
 
@@ -519,42 +637,51 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Exception Type</label>
+                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Exception Type *</label>
                     <select name="type" required class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                        <option value="weather_delay">Weather Delay (Storm / Cyclone)</option>
-                        <option value="customs_hold">Customs Hold / Inspection</option>
-                        <option value="damaged">Cargo Damaged</option>
-                        <option value="route_deviation">Course / Route Deviation</option>
-                        <option value="mechanical_issue">Vessel / Carrier Mechanical Issue</option>
-                        <option value="documentation_error">Documentation Discrepancy</option>
-                        <option value="other">Other Operational Exception</option>
+                        <option value="CUSTOMS_HOLD">CUSTOMS_HOLD — Regulatory Inspection</option>
+                        <option value="WEATHER_DELAY">WEATHER_DELAY — Severe Weather / Cyclone</option>
+                        <option value="PORT_CONGESTION">PORT_CONGESTION — Berth Queuing</option>
+                        <option value="DAMAGED">DAMAGED — Packaging / Cargo Damage</option>
+                        <option value="MISROUTED">MISROUTED — Course Deviation</option>
+                        <option value="DOCUMENTATION_ISSUE">DOCUMENTATION_ISSUE — HS Code Discrepancy</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Severity</label>
+                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Severity *</label>
                     <select name="severity" required class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM" selected>MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="CRITICAL">CRITICAL</option>
                     </select>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detected Time</label>
-                <input type="datetime-local" name="detected_at" value="{{ now()->format('Y-m-d\TH:i') }}" required class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detected Time *</label>
+                    <input type="datetime-local" name="detected_at" value="{{ now()->format('Y-m-d\TH:i') }}" required
+                        class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Est. Delay Impact (Hours)</label>
+                    <input type="number" name="estimated_delay_hours" min="0" placeholder="e.g. 24"
+                        class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                </div>
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detailed Description</label>
-                <textarea name="description" rows="3" required placeholder="Describe the incident, impact on ETA, and immediate actions taken..."
+                <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detailed Description *</label>
+                <textarea name="description" rows="3" required placeholder="Describe the incident, operational impact, and mitigation actions..."
                     class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"></textarea>
             </div>
 
             <div class="pt-3 flex justify-end space-x-2">
                 <button type="button" onclick="document.getElementById('exceptionModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow">Submit Exception</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow">
+                    Submit Exception & Flag Timeline
+                </button>
             </div>
         </form>
     </div>
