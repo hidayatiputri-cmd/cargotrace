@@ -122,7 +122,7 @@ class ServiceLayerTest extends TestCase
             'volume' => 8,
             'expected_departure' => now()->subDay(),
             'expected_arrival' => now()->addDays(2),
-            'current_status' => 'booked',
+            'current_status' => 'picked_up',
         ]);
 
         $event = $this->trackingService->addTrackingEvent($shipment, [

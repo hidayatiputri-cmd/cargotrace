@@ -5,12 +5,23 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-white">Global Shipments Registry</h1>
+            <div class="flex items-center space-x-2">
+                <h1 class="text-2xl font-extrabold text-white">Global Shipments Registry</h1>
+                @if(auth()->user()->isCustomer())
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-cyan-950 text-cyan-300 border border-cyan-800">
+                        Consignee Private Fleet
+                    </span>
+                @else
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-slate-800 text-slate-300 border border-slate-700">
+                        Global Dispatch Grid
+                    </span>
+                @endif
+            </div>
             <p class="text-xs text-slate-400 mt-1">
                 @if(auth()->user()->isCustomer())
-                    Displaying multi-modal freight shipments assigned to your organization.
+                    Displaying multi-modal freight shipments assigned to your organization. Multi-tenant access strictly isolated.
                 @else
-                    Full visibility into worldwide freight shipments, transshipments, and carriers.
+                    Full visibility into worldwide freight shipments, tracking events, transshipments, and carriers.
                 @endif
             </p>
         </div>
@@ -29,27 +40,28 @@
             <!-- Search -->
             <div>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Search</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Shipment # or Cargo..."
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Shipment #, cargo or customer..."
                     class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
             </div>
 
-            <!-- Status Filter -->
+            <!-- Status Filter with full Lifecycle -->
             <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Status</label>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Lifecycle Status</label>
                 <select name="status" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <option value="">All Statuses</option>
-                    <option value="booked" {{ request('status') === 'booked' ? 'selected' : '' }}>Booked</option>
-                    <option value="in_transit" {{ request('status') === 'in_transit' ? 'selected' : '' }}>In-Transit</option>
-                    <option value="customs_hold" {{ request('status') === 'customs_hold' ? 'selected' : '' }}>Customs Hold</option>
-                    <option value="exception" {{ request('status') === 'exception' ? 'selected' : '' }}>Exception</option>
-                    <option value="out_for_delivery" {{ request('status') === 'out_for_delivery' ? 'selected' : '' }}>Out for Delivery</option>
-                    <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                    <option value="">All Lifecycle Stages</option>
+                    <option value="created" {{ request('status') === 'created' ? 'selected' : '' }}>CREATED (Registered)</option>
+                    <option value="booked" {{ request('status') === 'booked' ? 'selected' : '' }}>BOOKED (Carrier Confirmed)</option>
+                    <option value="picked_up" {{ request('status') === 'picked_up' ? 'selected' : '' }}>PICKED_UP (Origin Cleared)</option>
+                    <option value="in_transit" {{ request('status') === 'in_transit' ? 'selected' : '' }}>IN_TRANSIT (Underway)</option>
+                    <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>DELIVERED (Finalized)</option>
+                    <option value="exception" {{ request('status') === 'exception' ? 'selected' : '' }}>EXCEPTION (Active Incident)</option>
+                    <option value="customs_hold" {{ request('status') === 'customs_hold' ? 'selected' : '' }}>CUSTOMS_HOLD</option>
                 </select>
             </div>
 
             <!-- Delay Filter -->
             <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Schedule Delay</label>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Schedule Health</label>
                 <select name="is_delayed" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
                     <option value="">All Schedules</option>
                     <option value="1" {{ request('is_delayed') === '1' ? 'selected' : '' }}>Delayed Only</option>
@@ -90,12 +102,13 @@
                     <tr>
                         <th class="py-3.5 px-4">Shipment #</th>
                         @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
-                            <th class="py-3.5 px-4">Customer</th>
+                            <th class="py-3.5 px-4">Customer Consignee</th>
                         @endif
                         <th class="py-3.5 px-4">Carrier & Cargo</th>
                         <th class="py-3.5 px-4">Origin & Destination</th>
-                        <th class="py-3.5 px-4">Status & Health</th>
-                        <th class="py-3.5 px-4">Schedule (Dep / Arr)</th>
+                        <th class="py-3.5 px-4">Current Location</th>
+                        <th class="py-3.5 px-4">Lifecycle Status</th>
+                        <th class="py-3.5 px-4">Schedule (ETA)</th>
                         <th class="py-3.5 px-4 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -134,11 +147,25 @@
                                 </div>
                             </td>
 
+                            <!-- Current Location from latest valid event -->
+                            <td class="py-4 px-4">
+                                <div class="text-xs font-semibold text-white flex items-center space-x-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+                                    <span class="truncate max-w-[180px]">{{ $s->current_location_description }}</span>
+                                </div>
+                                @php $locEv = $s->latestLocationEvent(); @endphp
+                                @if($locEv)
+                                    <div class="text-[10px] text-slate-500 mt-0.5">{{ $locEv->event_time->diffForHumans() }}</div>
+                                @endif
+                            </td>
+
                             <td class="py-4 px-4">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider
                                     @if($s->current_status === 'delivered') bg-emerald-950 text-emerald-400 border border-emerald-800
                                     @elseif($s->current_status === 'exception' || $s->is_delayed) bg-rose-950 text-rose-400 border border-rose-800
                                     @elseif($s->current_status === 'customs_hold') bg-amber-950 text-amber-400 border border-amber-800
+                                    @elseif($s->current_status === 'picked_up') bg-indigo-950 text-indigo-400 border border-indigo-800
+                                    @elseif($s->current_status === 'booked') bg-blue-950 text-blue-400 border border-blue-800
                                     @else bg-cyan-950 text-cyan-400 border border-cyan-800 @endif">
                                     {{ str_replace('_', ' ', $s->current_status) }}
                                 </span>
@@ -156,13 +183,13 @@
                             </td>
 
                             <td class="py-4 px-4 text-slate-300">
-                                <div><span class="text-slate-500">ETD:</span> {{ $s->expected_departure->format('M d, Y') }}</div>
                                 <div><span class="text-slate-500">ETA:</span> {{ $s->estimated_arrival ? $s->estimated_arrival->format('M d, Y') : $s->expected_arrival->format('M d, Y') }}</div>
+                                <div class="text-[10px] text-slate-500">ETD: {{ $s->expected_departure->format('M d') }}</div>
                             </td>
 
                             <td class="py-4 px-4 text-right space-x-1 whitespace-nowrap">
                                 <a href="{{ route('shipments.show', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition">
-                                    View Live Map
+                                    View Timeline
                                 </a>
                                 @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
                                     <a href="{{ route('shipments.edit', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition">
@@ -173,7 +200,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-500">
+                            <td colspan="8" class="py-8 text-center text-slate-500">
                                 No shipments found matching the criteria.
                             </td>
                         </tr>

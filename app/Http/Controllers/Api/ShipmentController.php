@@ -82,6 +82,8 @@ class ShipmentController extends Controller
             'expected_arrival' => ['sometimes', 'required', 'date'],
             'estimated_arrival' => ['nullable', 'date'],
             'current_status' => ['sometimes', 'required', 'string'],
+            'allow_terminal_reversal' => ['nullable', 'boolean'],
+            'reversal_reason' => ['nullable', 'string', 'max:500'],
             'items' => ['nullable', 'array'],
         ]);
 

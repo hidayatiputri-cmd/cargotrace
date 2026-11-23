@@ -45,4 +45,30 @@ class TrackingEvent extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Determine if this historical tracking event represents an exception or incident.
+     */
+    public function isExceptionEvent(): bool
+    {
+        $exceptionStatuses = ['exception', 'delayed', 'customs_hold'];
+        $exceptionTypes = [
+            'weather_alert',
+            'customs_hold',
+            'cargo_damage',
+            'course_deviation',
+            'incident',
+            'emergency',
+            'exception',
+            'documentation_hold'
+        ];
+
+        return in_array(strtolower($this->status), $exceptionStatuses, true)
+            || in_array(strtolower($this->event_type), $exceptionTypes, true);
+    }
+
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
 }

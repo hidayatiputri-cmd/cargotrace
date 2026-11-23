@@ -12,6 +12,15 @@ class Shipment extends Model
 {
     use HasFactory;
 
+    // Standard lifecycle status constants
+    public const STATUS_CREATED = 'created';
+    public const STATUS_BOOKED = 'booked';
+    public const STATUS_PICKED_UP = 'picked_up';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_DELIVERED = 'delivered';
+    public const STATUS_EXCEPTION = 'exception';
+    public const STATUS_CANCELLED = 'cancelled';
+
     protected $fillable = [
         'shipment_number',
         'customer_id',
@@ -43,6 +52,53 @@ class Shipment extends Model
         ];
     }
 
+    /**
+     * Map of valid status transitions adhering to:
+     * CREATED -> BOOKED -> PICKED_UP -> IN_TRANSIT -> DELIVERED
+     */
+    public static function getAllowedTransitions(string $status): array
+    {
+        $status = strtolower(trim($status));
+
+        $transitionMap = [
+            self::STATUS_CREATED => [
+                self::STATUS_BOOKED,
+                self::STATUS_CANCELLED,
+            ],
+            self::STATUS_BOOKED => [
+                self::STATUS_PICKED_UP,
+                self::STATUS_CANCELLED,
+            ],
+            self::STATUS_PICKED_UP => [
+                self::STATUS_IN_TRANSIT,
+                self::STATUS_CANCELLED,
+            ],
+            self::STATUS_IN_TRANSIT => [
+                self::STATUS_DELIVERED,
+                self::STATUS_EXCEPTION,
+                self::STATUS_CANCELLED,
+            ],
+            self::STATUS_EXCEPTION => [
+                self::STATUS_IN_TRANSIT,
+                self::STATUS_DELIVERED,
+                self::STATUS_CANCELLED,
+            ],
+            self::STATUS_DELIVERED => [], // Terminal state
+            self::STATUS_CANCELLED => [], // Terminal state
+        ];
+
+        return $transitionMap[$status] ?? [];
+    }
+
+    /**
+     * Check if a status is terminal.
+     */
+    public static function isTerminal(string $status): bool
+    {
+        $normalized = strtolower(trim($status));
+        return in_array($normalized, [self::STATUS_DELIVERED, self::STATUS_CANCELLED], true);
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
@@ -70,12 +126,52 @@ class Shipment extends Model
 
     public function trackingEvents(): HasMany
     {
-        return $this->hasMany(TrackingEvent::class)->orderBy('event_time', 'asc');
+        return $this->hasMany(TrackingEvent::class)->orderBy('event_time', 'asc')->orderBy('id', 'asc');
     }
 
     public function latestTrackingEvent(): HasOne
     {
         return $this->hasOne(TrackingEvent::class)->latestOfMany('event_time');
+    }
+
+    /**
+     * Get the most recent tracking event that contains valid spatial location information.
+     */
+    public function latestLocationEvent(): ?TrackingEvent
+    {
+        return $this->trackingEvents()
+            ->where(function ($query) {
+                $query->whereNotNull('location_id')
+                      ->orWhere(function ($coordQ) {
+                          $coordQ->whereNotNull('latitude')->whereNotNull('longitude');
+                      });
+            })
+            ->latest('event_time')
+            ->first();
+    }
+
+    /**
+     * Accessor for human-readable current position description.
+     */
+    public function getCurrentLocationDescriptionAttribute(): string
+    {
+        $event = $this->latestLocationEvent();
+
+        if ($event) {
+            if ($event->location) {
+                return "{$event->location->name} ({$event->location->code}) — {$event->location->city}, {$event->location->country}";
+            }
+
+            if ($event->latitude !== null && $event->longitude !== null) {
+                return "Maritime / Air Corridor (Lat: " . number_format($event->latitude, 4) . ", Lng: " . number_format($event->longitude, 4) . ")";
+            }
+        }
+
+        if ($this->originLocation) {
+            return "At Origin: {$this->originLocation->name} ({$this->originLocation->code})";
+        }
+
+        return "Location Pending Initial Dispatch";
     }
 
     public function exceptions(): HasMany

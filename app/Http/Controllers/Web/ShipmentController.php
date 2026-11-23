@@ -115,6 +115,8 @@ class ShipmentController extends Controller
             'expected_arrival' => ['required', 'date'],
             'estimated_arrival' => ['nullable', 'date'],
             'current_status' => ['required', 'string'],
+            'allow_terminal_reversal' => ['nullable', 'boolean'],
+            'reversal_reason' => ['nullable', 'string', 'max:500'],
             'items' => ['nullable', 'array'],
             'items.*.item_name' => ['required_with:items', 'string'],
             'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],

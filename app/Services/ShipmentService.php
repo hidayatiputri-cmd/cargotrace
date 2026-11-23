@@ -2,22 +2,82 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidStatusTransitionException;
 use App\Models\AuditLog;
 use App\Models\Notification;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
 use App\Models\TrackingEvent;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ShipmentService
 {
     public function __construct(
         protected EtaService $etaService
     ) {}
+
+    /**
+     * Validate status transition adhering to the shipment lifecycle:
+     * CREATED -> BOOKED -> PICKED_UP -> IN_TRANSIT -> DELIVERED
+     *
+     * Prevents invalid transitions and prevents terminal state (DELIVERED) reversal
+     * without special administrative procedure.
+     *
+     * @param string $currentStatus
+     * @param string $targetStatus
+     * @param User|null $actor
+     * @param bool $allowTerminalReversal
+     * @param string|null $reversalReason
+     * @return bool
+     * @throws InvalidStatusTransitionException
+     */
+    public function validateStatusTransition(
+        string $currentStatus,
+        string $targetStatus,
+        ?User $actor = null,
+        bool $allowTerminalReversal = false,
+        ?string $reversalReason = null
+    ): bool {
+        $from = strtolower(trim($currentStatus));
+        $to = strtolower(trim($targetStatus));
+
+        // Same status is a valid checkpoint update
+        if ($from === $to) {
+            return true;
+        }
+
+        // Terminal Status Protection: DELIVERED
+        if ($from === Shipment::STATUS_DELIVERED) {
+            $isAuthorizedAdmin = $actor && $actor->isAdmin();
+            $hasValidReason = !empty($reversalReason) && strlen(trim($reversalReason)) >= 10;
+
+            if (!$isAuthorizedAdmin || !$allowTerminalReversal || !$hasValidReason) {
+                throw InvalidStatusTransitionException::terminalLocked($from);
+            }
+
+            // Special administrative reversal procedure validated
+            return true;
+        }
+
+        // Terminal Status: CANCELLED
+        if ($from === Shipment::STATUS_CANCELLED) {
+            throw InvalidStatusTransitionException::terminalLocked($from);
+        }
+
+        // Standard Lifecycle Transition Map Check
+        $allowedTransitions = Shipment::getAllowedTransitions($from);
+
+        if (!in_array($to, $allowedTransitions, true)) {
+            throw InvalidStatusTransitionException::invalidTransition($from, $to, $allowedTransitions);
+        }
+
+        return true;
+    }
 
     /**
      * Query shipments scoped by role and applied filters.
@@ -28,7 +88,7 @@ class ShipmentService
             ->with(['customer', 'carrier', 'originLocation', 'destinationLocation', 'openExceptions'])
             ->withCount(['items', 'trackingEvents', 'openExceptions']);
 
-        // Role authorization scoping
+        // Role authorization scoping: Customer strictly isolated to own shipments
         if ($user->isCustomer()) {
             $query->where('customer_id', $user->id);
         } elseif (!empty($filters['customer_id'])) {
@@ -37,7 +97,7 @@ class ShipmentService
 
         // Status filter
         if (!empty($filters['status'])) {
-            $query->where('current_status', $filters['status']);
+            $query->where('current_status', strtolower(trim($filters['status'])));
         }
 
         // Delay filter
@@ -73,6 +133,9 @@ class ShipmentService
     {
         return DB::transaction(function () use ($data, $actor) {
             $shipmentNumber = $data['shipment_number'] ?? 'CT-' . date('Ymd') . '-' . strtoupper(Str::random(5));
+            $initialStatus = !empty($data['current_status'])
+                ? strtolower(trim($data['current_status']))
+                : Shipment::STATUS_CREATED;
 
             // Evaluate initial delay if estimated arrival provided
             $expectedArrival = $data['expected_arrival'];
@@ -81,7 +144,7 @@ class ShipmentService
             $dummy = new Shipment([
                 'expected_arrival' => $expectedArrival,
                 'estimated_arrival' => $estimatedArrival,
-                'current_status' => $data['current_status'] ?? 'booked',
+                'current_status' => $initialStatus,
             ]);
             $delayAssessment = $this->etaService->evaluateDelay($dummy, $estimatedArrival);
 
@@ -97,7 +160,7 @@ class ShipmentService
                 'expected_departure' => $data['expected_departure'],
                 'expected_arrival' => $expectedArrival,
                 'estimated_arrival' => $estimatedArrival,
-                'current_status' => $data['current_status'] ?? 'booked',
+                'current_status' => $initialStatus,
                 'is_delayed' => $delayAssessment['is_delayed'],
                 'delay_hours' => $delayAssessment['delay_hours'],
                 'delay_severity' => $delayAssessment['delay_severity'],
@@ -117,23 +180,30 @@ class ShipmentService
                 }
             }
 
-            // Create initial tracking event
+            // Create initial historical tracking event
+            $initialEventTime = now();
+            if (!empty($data['initial_event_time'])) {
+                $initialEventTime = Carbon::parse($data['initial_event_time']);
+            } elseif (!empty($data['expected_departure']) && Carbon::parse($data['expected_departure'])->lessThan(now())) {
+                $initialEventTime = Carbon::parse($data['expected_departure']);
+            }
+
             TrackingEvent::create([
                 'shipment_id' => $shipment->id,
-                'status' => $shipment->current_status,
-                'event_type' => 'booking_created',
-                'event_time' => now(),
+                'status' => $initialStatus,
+                'event_type' => ($initialStatus === Shipment::STATUS_CREATED) ? 'shipment_created' : 'booking_registered',
+                'event_time' => $initialEventTime,
                 'location_id' => $shipment->origin_location_id,
-                'description' => 'Shipment booking registered in CargoTrace system.',
+                'description' => "Shipment registered in CargoTrace with initial status " . strtoupper($initialStatus) . ".",
                 'created_by' => $actor?->id,
             ]);
 
-            // Notify Customer
+            // Notify Customer Consignee
             Notification::create([
                 'user_id' => $shipment->customer_id,
                 'shipment_id' => $shipment->id,
-                'title' => "Shipment #{$shipment->shipment_number} Booked",
-                'message' => "Your shipment #{$shipment->shipment_number} has been created and scheduled for departure.",
+                'title' => "Shipment #{$shipment->shipment_number} Registered",
+                'message' => "Your shipment #{$shipment->shipment_number} has been created with status " . strtoupper($initialStatus) . ". Scheduled departure: " . Carbon::parse($shipment->expected_departure)->format('M d, Y H:i') . ".",
             ]);
 
             // Audit Log
@@ -157,8 +227,48 @@ class ShipmentService
     {
         return DB::transaction(function () use ($shipment, $data, $actor) {
             $oldValues = $shipment->toArray();
+            $oldStatus = strtolower(trim($shipment->current_status));
 
-            $shipment->fill($data);
+            // Validate status transition if provided and changed
+            if (!empty($data['current_status'])) {
+                $targetStatus = strtolower(trim($data['current_status']));
+                if ($targetStatus !== $oldStatus) {
+                    $allowReversal = !empty($data['allow_terminal_reversal']);
+                    $reversalReason = $data['reversal_reason'] ?? null;
+
+                    $this->validateStatusTransition(
+                        $oldStatus,
+                        $targetStatus,
+                        $actor,
+                        $allowReversal,
+                        $reversalReason
+                    );
+
+                    $shipment->current_status = $targetStatus;
+
+                    // Append historical tracking event for the status update
+                    TrackingEvent::create([
+                        'shipment_id' => $shipment->id,
+                        'status' => $targetStatus,
+                        'event_type' => 'status_transition',
+                        'event_time' => now(),
+                        'location_id' => $shipment->origin_location_id,
+                        'description' => "Status transitioned from " . strtoupper($oldStatus) . " to " . strtoupper($targetStatus) . ".",
+                        'created_by' => $actor?->id,
+                    ]);
+
+                    // Notify customer
+                    Notification::create([
+                        'user_id' => $shipment->customer_id,
+                        'shipment_id' => $shipment->id,
+                        'title' => "Shipment #{$shipment->shipment_number}: Status -> " . strtoupper($targetStatus),
+                        'message' => "Shipment status changed from " . strtoupper($oldStatus) . " to " . strtoupper($targetStatus) . ".",
+                    ]);
+                }
+            }
+
+            // Fill remaining fields
+            $shipment->fill(collect($data)->except(['current_status', 'allow_terminal_reversal', 'reversal_reason'])->toArray());
 
             // Re-evaluate delay
             $assessment = $this->etaService->evaluateDelay($shipment, $shipment->estimated_arrival);
@@ -225,11 +335,16 @@ class ShipmentService
         }
 
         $total = (clone $query)->count();
-        $inTransit = (clone $query)->whereIn('current_status', ['in_transit', 'customs_hold', 'out_for_delivery'])->count();
+        $inTransit = (clone $query)->whereIn('current_status', [
+            Shipment::STATUS_IN_TRANSIT,
+            Shipment::STATUS_PICKED_UP,
+            'customs_hold',
+            'out_for_delivery'
+        ])->count();
         $delayed = (clone $query)->where('is_delayed', true)->count();
-        $delivered = (clone $query)->where('current_status', 'delivered')->count();
+        $delivered = (clone $query)->where('current_status', Shipment::STATUS_DELIVERED)->count();
 
-        $exceptionsQuery = ShipmentException::query();
+        $exceptionsQuery = \App\Models\ShipmentException::query();
         if ($user->isCustomer()) {
             $exceptionsQuery->whereHas('shipment', function ($q) use ($user) {
                 $q->where('customer_id', $user->id);

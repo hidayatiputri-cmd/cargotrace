@@ -28,6 +28,8 @@ class TrackingEventController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'description' => ['required', 'string', 'max:1000'],
             'estimated_arrival' => ['nullable', 'date'],
+            'allow_terminal_reversal' => ['nullable', 'boolean'],
+            'reversal_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         $this->trackingService->addTrackingEvent($shipment, $validated, $request->user());

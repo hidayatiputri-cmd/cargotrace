@@ -86,7 +86,7 @@ class ApiSanctumTest extends TestCase
             'volume' => 2,
             'expected_departure' => now(),
             'expected_arrival' => now()->addDays(5),
-            'current_status' => 'booked',
+            'current_status' => 'picked_up',
         ]);
 
         $token = $this->operator->createToken('op-token')->plainTextToken;

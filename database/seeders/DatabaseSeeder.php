@@ -522,6 +522,96 @@ class DatabaseSeeder extends Seeder
             'reported_by' => $operator->id,
         ]);
 
+        // --- SHIPMENT 6: Jakarta to Rotterdam (BOOKED status - ready for PICKED_UP) ---
+        $sh6 = Shipment::firstOrCreate(
+            ['shipment_number' => 'CT-2026-ID-NL06'],
+            [
+                'customer_id' => $customer1->id,
+                'carrier_id' => $carrierModels['MAEU']->id,
+                'origin_location_id' => $locationModels['IDJKT']->id,
+                'destination_location_id' => $locationModels['NLRTM']->id,
+                'cargo_type' => 'Garments & Sustainable Textile Rolls',
+                'weight' => 9500.00,
+                'volume' => 45.00,
+                'expected_departure' => Carbon::now()->addDays(2)->setHour(10)->setMinute(0),
+                'expected_arrival' => Carbon::now()->addDays(18)->setHour(14)->setMinute(0),
+                'estimated_arrival' => Carbon::now()->addDays(18)->setHour(14)->setMinute(0),
+                'current_status' => 'booked',
+                'is_delayed' => false,
+                'delay_hours' => 0,
+                'delay_severity' => 'none',
+            ]
+        );
+
+        $sh6->items()->delete();
+        $sh6->items()->createMany([
+            ['item_name' => 'Organic Cotton Fabric Bales', 'quantity' => 80, 'weight' => 6000.00, 'description' => 'GOTS certified organic cotton'],
+            ['item_name' => 'Recycled Polyester Yarn Spools', 'quantity' => 120, 'weight' => 3500.00, 'description' => 'OEKO-TEX Class 1 certification'],
+        ]);
+
+        $sh6->trackingEvents()->delete();
+        $sh6->trackingEvents()->create([
+            'status' => 'booked',
+            'event_type' => 'booking_registered',
+            'event_time' => Carbon::now()->subHours(8),
+            'location_id' => $locationModels['IDJKT']->id,
+            'latitude' => -6.101700,
+            'longitude' => 106.883300,
+            'description' => 'Carrier booking slot locked with Maersk Line. Awaiting warehouse pickup dispatch.',
+            'created_by' => $operator->id,
+        ]);
+
+        // --- SHIPMENT 7: Singapore to Los Angeles (PICKED_UP status - ready for IN_TRANSIT) ---
+        $sh7 = Shipment::firstOrCreate(
+            ['shipment_number' => 'CT-2026-SG-LA07'],
+            [
+                'customer_id' => $customer1->id,
+                'carrier_id' => $carrierModels['FDXN']->id,
+                'origin_location_id' => $locationModels['SGSIN']->id,
+                'destination_location_id' => $locationModels['USLAX']->id,
+                'cargo_type' => 'Precision Medical Diagnostic Instruments',
+                'weight' => 4200.00,
+                'volume' => 22.00,
+                'expected_departure' => Carbon::now()->addHours(6),
+                'expected_arrival' => Carbon::now()->addDays(12)->setHour(18)->setMinute(0),
+                'estimated_arrival' => Carbon::now()->addDays(12)->setHour(18)->setMinute(0),
+                'current_status' => 'picked_up',
+                'is_delayed' => false,
+                'delay_hours' => 0,
+                'delay_severity' => 'none',
+            ]
+        );
+
+        $sh7->items()->delete();
+        $sh7->items()->createMany([
+            ['item_name' => 'Automated Immunoassay Analyzers', 'quantity' => 6, 'weight' => 2400.00, 'description' => 'Temperature-controlled shock mounted crates'],
+            ['item_name' => 'Calibrated Reagent Sensor Packs', 'quantity' => 50, 'weight' => 1800.00, 'description' => 'Dry ice packaging 2-8°C'],
+        ]);
+
+        $sh7->trackingEvents()->delete();
+        $sh7->trackingEvents()->createMany([
+            [
+                'status' => 'booked',
+                'event_type' => 'booking_registered',
+                'event_time' => Carbon::now()->subDay()->setHour(14)->setMinute(0),
+                'location_id' => $locationModels['SGSIN']->id,
+                'latitude' => 1.290270,
+                'longitude' => 103.851959,
+                'description' => 'Electronic air/sea waybill issued.',
+                'created_by' => $operator->id,
+            ],
+            [
+                'status' => 'picked_up',
+                'event_type' => 'carrier_pickup',
+                'event_time' => Carbon::now()->subHours(3),
+                'location_id' => $locationModels['SGSIN']->id,
+                'latitude' => 1.290270,
+                'longitude' => 103.851959,
+                'description' => 'Cargo picked up from manufacturer warehouse and accepted at PSA gate terminal.',
+                'created_by' => $operator->id,
+            ],
+        ]);
+
         // 5. Notifications
         Notification::create([
             'user_id' => $customer1->id,
