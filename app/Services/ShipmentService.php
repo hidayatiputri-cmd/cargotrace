@@ -110,6 +110,57 @@ class ShipmentService
             $query->where('carrier_id', $filters['carrier_id']);
         }
 
+        // Origin location filter
+        if (!empty($filters['origin_location_id'])) {
+            $query->where('origin_location_id', $filters['origin_location_id']);
+        }
+
+        // Destination location filter
+        if (!empty($filters['destination_location_id'])) {
+            $query->where('destination_location_id', $filters['destination_location_id']);
+        }
+
+        // Delay severity filter
+        if (!empty($filters['delay_severity'])) {
+            $query->where('delay_severity', strtoupper(trim($filters['delay_severity'])));
+        }
+
+        // Has open exceptions filter
+        if (isset($filters['has_exceptions']) && $filters['has_exceptions'] !== '') {
+            $hasExceptions = filter_var($filters['has_exceptions'], FILTER_VALIDATE_BOOLEAN);
+            if ($hasExceptions) {
+                $query->where(function ($q) {
+                    $q->whereHas('openExceptions')
+                      ->orWhere('current_status', Shipment::STATUS_EXCEPTION);
+                });
+            } else {
+                $query->whereDoesntHave('openExceptions')
+                      ->where('current_status', '!=', Shipment::STATUS_EXCEPTION);
+            }
+        }
+
+        // Date range: Expected departure
+        if (!empty($filters['departure_from'])) {
+            $query->whereDate('expected_departure', '>=', $filters['departure_from']);
+        }
+        if (!empty($filters['departure_to'])) {
+            $query->whereDate('expected_departure', '<=', $filters['departure_to']);
+        }
+
+        // Date range: Expected or Estimated arrival
+        if (!empty($filters['arrival_from'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->whereDate('expected_arrival', '>=', $filters['arrival_from'])
+                  ->orWhereDate('estimated_arrival', '>=', $filters['arrival_from']);
+            });
+        }
+        if (!empty($filters['arrival_to'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->whereDate('expected_arrival', '<=', $filters['arrival_to'])
+                  ->orWhereDate('estimated_arrival', '<=', $filters['arrival_to']);
+            });
+        }
+
         // Search filter (number or cargo type)
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -119,6 +170,10 @@ class ShipmentService
                   ->orWhereHas('customer', function ($cq) use ($search) {
                       $cq->where('name', 'like', "%{$search}%")
                          ->orWhere('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('carrier', function ($carQ) use ($search) {
+                      $carQ->where('name', 'like', "%{$search}%")
+                           ->orWhere('code', 'like', "%{$search}%");
                   });
             });
         }
@@ -365,12 +420,18 @@ class ShipmentService
         }
 
         $total = (clone $query)->count();
+        $activeShipments = (clone $query)->whereNotIn('current_status', [
+            Shipment::STATUS_DELIVERED,
+            Shipment::STATUS_CANCELLED
+        ])->count();
+
         $inTransit = (clone $query)->whereIn('current_status', [
             Shipment::STATUS_IN_TRANSIT,
             Shipment::STATUS_PICKED_UP,
             'customs_hold',
             'out_for_delivery'
         ])->count();
+
         $delayed = (clone $query)->where('is_delayed', true)->count();
         $delivered = (clone $query)->where('current_status', Shipment::STATUS_DELIVERED)->count();
 
@@ -380,17 +441,38 @@ class ShipmentService
                 $q->where('customer_id', $user->id);
             });
         }
-        $openExceptions = $exceptionsQuery->whereIn('status', ['open', 'under_review'])->count();
+        $openExceptions = $exceptionsQuery->whereIn('status', [
+            \App\Models\ShipmentException::STATUS_OPEN,
+            \App\Models\ShipmentException::STATUS_INVESTIGATING,
+            'open',
+            'investigating',
+            'under_review'
+        ])->count();
 
         $onTimeRate = $total > 0 ? round((($total - $delayed) / $total) * 100, 1) : 100;
 
+        // Status breakdown distribution
+        $statusDistribution = [
+            'created' => (clone $query)->where('current_status', Shipment::STATUS_CREATED)->count(),
+            'booked' => (clone $query)->where('current_status', Shipment::STATUS_BOOKED)->count(),
+            'picked_up' => (clone $query)->where('current_status', Shipment::STATUS_PICKED_UP)->count(),
+            'in_transit' => (clone $query)->where('current_status', Shipment::STATUS_IN_TRANSIT)->count(),
+            'exception' => (clone $query)->where(function ($q) {
+                $q->where('current_status', Shipment::STATUS_EXCEPTION)
+                  ->orWhere('current_status', 'customs_hold');
+            })->count(),
+            'delivered' => $delivered,
+        ];
+
         return [
             'total_shipments' => $total,
+            'active_shipments' => $activeShipments,
             'in_transit' => $inTransit,
             'delayed' => $delayed,
             'delivered' => $delivered,
             'open_exceptions' => $openExceptions,
             'on_time_rate' => $onTimeRate,
+            'status_distribution' => $statusDistribution,
         ];
     }
 }

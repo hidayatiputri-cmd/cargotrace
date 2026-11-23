@@ -26,14 +26,20 @@ class ShipmentController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $filters = $request->only(['status', 'is_delayed', 'carrier_id', 'customer_id', 'search']);
+        $filters = $request->only([
+            'status', 'is_delayed', 'carrier_id', 'customer_id', 'search',
+            'origin_location_id', 'destination_location_id',
+            'departure_from', 'departure_to', 'arrival_from', 'arrival_to',
+            'delay_severity', 'has_exceptions'
+        ]);
         $shipments = $this->shipmentService->listShipments($user, $filters, 10);
-        $carriers = Carrier::where('status', 'active')->get();
+        $carriers = Carrier::where('status', 'active')->orderBy('name')->get();
+        $locations = Location::orderBy('name')->get();
         $customers = ($user->isAdmin() || $user->isOperator())
-            ? User::where('role', User::ROLE_CUSTOMER)->get()
+            ? User::where('role', User::ROLE_CUSTOMER)->orderBy('name')->get()
             : collect();
 
-        return view('shipments.index', compact('shipments', 'carriers', 'customers', 'filters'));
+        return view('shipments.index', compact('shipments', 'carriers', 'locations', 'customers', 'filters'));
     }
 
     public function show(Shipment $shipment, Request $request): View

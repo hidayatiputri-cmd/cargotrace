@@ -23,6 +23,12 @@ class ShipmentException extends Model
     public const STATUS_INVESTIGATING = 'INVESTIGATING';
     public const STATUS_RESOLVED = 'RESOLVED';
 
+    // Severity Tiers
+    public const SEVERITY_LOW = 'LOW';
+    public const SEVERITY_MEDIUM = 'MEDIUM';
+    public const SEVERITY_HIGH = 'HIGH';
+    public const SEVERITY_CRITICAL = 'CRITICAL';
+
     protected $fillable = [
         'shipment_id',
         'type',

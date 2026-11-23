@@ -24,7 +24,12 @@ class ShipmentController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $filters = $request->only(['status', 'is_delayed', 'carrier_id', 'customer_id', 'search']);
+        $filters = $request->only([
+            'status', 'is_delayed', 'carrier_id', 'customer_id', 'search',
+            'origin_location_id', 'destination_location_id',
+            'departure_from', 'departure_to', 'arrival_from', 'arrival_to',
+            'delay_severity', 'has_exceptions'
+        ]);
         $perPage = $request->integer('per_page', 15);
         $shipments = $this->shipmentService->listShipments($request->user(), $filters, $perPage);
 

@@ -34,62 +34,148 @@
         @endif
     </div>
 
-    <!-- Filter Bar -->
-    <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-xl">
-        <form method="GET" action="{{ route('shipments.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <!-- Search -->
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Search</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Shipment #, cargo or customer..."
-                    class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+    <!-- Advanced Filter Console -->
+    <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl" x-data="{ expanded: {{ request()->hasAny(['origin_location_id', 'destination_location_id', 'delay_severity', 'has_exceptions', 'departure_from', 'departure_to', 'arrival_from', 'arrival_to']) ? 'true' : 'false' }} }">
+        <form method="GET" action="{{ route('shipments.index') }}" class="space-y-4">
+            <!-- Primary Filter Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <!-- Search -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Search</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Shipment #, cargo or customer..."
+                        class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                </div>
+
+                <!-- Status Filter with full Lifecycle -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Lifecycle Status</label>
+                    <select name="status" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Lifecycle Stages</option>
+                        <option value="created" {{ request('status') === 'created' ? 'selected' : '' }}>CREATED (Registered)</option>
+                        <option value="booked" {{ request('status') === 'booked' ? 'selected' : '' }}>BOOKED (Carrier Confirmed)</option>
+                        <option value="picked_up" {{ request('status') === 'picked_up' ? 'selected' : '' }}>PICKED_UP (Origin Cleared)</option>
+                        <option value="in_transit" {{ request('status') === 'in_transit' ? 'selected' : '' }}>IN_TRANSIT (Underway)</option>
+                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>DELIVERED (Finalized)</option>
+                        <option value="exception" {{ request('status') === 'exception' ? 'selected' : '' }}>EXCEPTION (Active Incident)</option>
+                        <option value="customs_hold" {{ request('status') === 'customs_hold' ? 'selected' : '' }}>CUSTOMS_HOLD</option>
+                    </select>
+                </div>
+
+                <!-- Schedule Health / Delay -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Schedule Health</label>
+                    <select name="is_delayed" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Schedules</option>
+                        <option value="1" {{ request('is_delayed') === '1' ? 'selected' : '' }}>Delayed Only</option>
+                        <option value="0" {{ request('is_delayed') === '0' ? 'selected' : '' }}>On-Time Only</option>
+                    </select>
+                </div>
+
+                <!-- Carrier Filter -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Carrier</label>
+                    <select name="carrier_id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Carriers</option>
+                        @foreach($carriers as $car)
+                            <option value="{{ $car->id }}" {{ request('carrier_id') == $car->id ? 'selected' : '' }}>
+                                {{ $car->name }} ({{ $car->code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Action & Expand Buttons -->
+                <div class="flex items-end space-x-2">
+                    <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition">
+                        Filter
+                    </button>
+                    <button type="button" @click="expanded = !expanded" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition flex items-center space-x-1" title="Toggle Advanced Filter Parameters">
+                        <span x-text="expanded ? 'Less' : 'More'">More</span>
+                        <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': expanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <a href="{{ route('shipments.index') }}" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-medium text-xs border border-slate-700 transition">
+                        Reset
+                    </a>
+                </div>
             </div>
 
-            <!-- Status Filter with full Lifecycle -->
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Lifecycle Status</label>
-                <select name="status" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <option value="">All Lifecycle Stages</option>
-                    <option value="created" {{ request('status') === 'created' ? 'selected' : '' }}>CREATED (Registered)</option>
-                    <option value="booked" {{ request('status') === 'booked' ? 'selected' : '' }}>BOOKED (Carrier Confirmed)</option>
-                    <option value="picked_up" {{ request('status') === 'picked_up' ? 'selected' : '' }}>PICKED_UP (Origin Cleared)</option>
-                    <option value="in_transit" {{ request('status') === 'in_transit' ? 'selected' : '' }}>IN_TRANSIT (Underway)</option>
-                    <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>DELIVERED (Finalized)</option>
-                    <option value="exception" {{ request('status') === 'exception' ? 'selected' : '' }}>EXCEPTION (Active Incident)</option>
-                    <option value="customs_hold" {{ request('status') === 'customs_hold' ? 'selected' : '' }}>CUSTOMS_HOLD</option>
-                </select>
-            </div>
+            <!-- Advanced Filter Drawer -->
+            <div x-show="expanded" x-cloak class="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Origin Hub -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Origin Hub</label>
+                    <select name="origin_location_id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Origin Hubs</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}" {{ request('origin_location_id') == $loc->id ? 'selected' : '' }}>
+                                {{ $loc->city }} ({{ $loc->code }}) - {{ $loc->country }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <!-- Delay Filter -->
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Schedule Health</label>
-                <select name="is_delayed" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <option value="">All Schedules</option>
-                    <option value="1" {{ request('is_delayed') === '1' ? 'selected' : '' }}>Delayed Only</option>
-                    <option value="0" {{ request('is_delayed') === '0' ? 'selected' : '' }}>On-Time Only</option>
-                </select>
-            </div>
+                <!-- Destination Hub -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Destination Hub</label>
+                    <select name="destination_location_id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Destination Hubs</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}" {{ request('destination_location_id') == $loc->id ? 'selected' : '' }}>
+                                {{ $loc->city }} ({{ $loc->code }}) - {{ $loc->country }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <!-- Carrier Filter -->
-            <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Carrier</label>
-                <select name="carrier_id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <option value="">All Carriers</option>
-                    @foreach($carriers as $car)
-                        <option value="{{ $car->id }}" {{ request('carrier_id') == $car->id ? 'selected' : '' }}>
-                            {{ $car->name }} ({{ $car->code }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                <!-- Delay Severity -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Delay Severity</label>
+                    <select name="delay_severity" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Severity Tiers</option>
+                        <option value="NONE" {{ request('delay_severity') === 'NONE' ? 'selected' : '' }}>NONE (On Schedule)</option>
+                        <option value="LOW" {{ request('delay_severity') === 'LOW' ? 'selected' : '' }}>LOW (&le; 6h excess)</option>
+                        <option value="MEDIUM" {{ request('delay_severity') === 'MEDIUM' ? 'selected' : '' }}>MEDIUM (6h - 24h excess)</option>
+                        <option value="HIGH" {{ request('delay_severity') === 'HIGH' ? 'selected' : '' }}>HIGH (&gt; 24h excess)</option>
+                    </select>
+                </div>
 
-            <!-- Filter Buttons -->
-            <div class="flex items-end space-x-2">
-                <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition">
-                    Filter
-                </button>
-                <a href="{{ route('shipments.index') }}" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs border border-slate-700 transition">
-                    Reset
-                </a>
+                <!-- Open Exceptions Filter -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Incident / Exception</label>
+                    <select name="has_exceptions" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="1" {{ request('has_exceptions') === '1' ? 'selected' : '' }}>Active Incidents / Exceptions</option>
+                        <option value="0" {{ request('has_exceptions') === '0' ? 'selected' : '' }}>Incident-Free</option>
+                    </select>
+                </div>
+
+                <!-- Expected Departure Range -->
+                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">ETD From</label>
+                        <input type="date" name="departure_from" value="{{ request('departure_from') }}"
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">ETD To</label>
+                        <input type="date" name="departure_to" value="{{ request('departure_to') }}"
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Arrival Date Range -->
+                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">ETA From</label>
+                        <input type="date" name="arrival_from" value="{{ request('arrival_from') }}"
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">ETA To</label>
+                        <input type="date" name="arrival_to" value="{{ request('arrival_to') }}"
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -212,7 +298,7 @@
         <!-- Pagination -->
         @if($shipments->hasPages())
             <div class="p-4 border-t border-slate-800 bg-slate-950">
-                {{ $shipments->links() }}
+                {{ $shipments->withQueryString()->links() }}
             </div>
         @endif
     </div>
