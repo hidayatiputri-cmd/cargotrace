@@ -9,6 +9,7 @@ use App\Models\Shipment;
 use App\Models\User;
 use App\Services\ShipmentService;
 use App\Services\TrackingService;
+use App\Services\WeatherService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,7 +19,8 @@ class ShipmentController extends Controller
 {
     public function __construct(
         protected ShipmentService $shipmentService,
-        protected TrackingService $trackingService
+        protected TrackingService $trackingService,
+        protected WeatherService $weatherService
     ) {}
 
     public function index(Request $request): View
@@ -42,8 +44,9 @@ class ShipmentController extends Controller
         $shipment = $this->shipmentService->getShipmentWithFullDetails($shipment);
         $timeline = $this->trackingService->getTimeline($shipment);
         $locations = Location::all();
+        $weather = $this->weatherService->getWeatherForShipment($shipment);
 
-        return view('shipments.show', compact('shipment', 'timeline', 'locations'));
+        return view('shipments.show', compact('shipment', 'timeline', 'locations', 'weather'));
     }
 
     public function create(): View

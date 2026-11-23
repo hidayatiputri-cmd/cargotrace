@@ -237,25 +237,139 @@
         </div>
     </div>
 
-    <!-- Interactive Route Map (Leaflet.js) -->
+    <!-- External Weather & Environmental Operational Context (Open-Meteo / OpenWeatherMap) -->
+    @if(isset($weather) && $weather['available'])
+        <div class="bg-gradient-to-r from-slate-900 via-slate-900/95 to-cyan-950/30 p-5 rounded-2xl border border-cyan-900/50 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                        @if($weather['condition_icon'] === 'sun')
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        @elseif($weather['condition_icon'] === 'cloud-rain')
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15zm5 5v2m4-2v2m4-2v2"/></svg>
+                        @elseif($weather['condition_icon'] === 'cloud-lightning')
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        @else
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="text-sm font-bold text-white">Live Environmental & Maritime Weather Telemetry</h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ $weather['advisory_badge'] }}">
+                                {{ $weather['advisory_level'] }}
+                            </span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono border border-slate-700">
+                                {{ $weather['source'] }}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">
+                            Observation Target: <strong class="text-slate-200">{{ $weather['location_label'] ?? 'Current Telemetry Position' }}</strong>
+                            &bull; Coords: <span class="font-mono text-cyan-400">{{ number_format($weather['latitude'], 4) }}, {{ number_format($weather['longitude'], 4) }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400 flex items-center space-x-1.5 shrink-0">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Updated: <strong class="text-slate-300">{{ $weather['fetched_at'] }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Atmospheric Condition</span>
+                    <div class="mt-1 text-sm font-bold text-white flex items-center space-x-1.5 truncate">
+                        <span>{{ $weather['condition_name'] }}</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Ambient Temperature</span>
+                    <div class="mt-1 text-sm font-bold text-cyan-400 font-mono">
+                        {{ $weather['temperature'] !== null ? $weather['temperature'] . ' ' . $weather['temperature_unit'] : 'N/A' }}
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Surface Wind Velocity</span>
+                    <div class="mt-1 text-sm font-bold text-white font-mono">
+                        {{ $weather['wind_speed'] }} {{ $weather['wind_unit'] }}
+                        @if(!empty($weather['wind_direction']))
+                            <span class="text-[11px] text-slate-400 font-sans font-normal">({{ $weather['wind_direction'] }}°)</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Relative Humidity</span>
+                    <div class="mt-1 text-sm font-bold text-white font-mono">
+                        {{ $weather['humidity'] !== null ? $weather['humidity'] . '%' : 'N/A' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deterministic Operational Advisory & Non-AI Notice -->
+            <div class="mt-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div class="flex items-start space-x-2.5">
+                    <svg class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div>
+                        <p class="text-slate-200 font-medium">{{ $weather['advisory_text'] }}</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $weather['operational_note'] }}</p>
+                    </div>
+                </div>
+                <div class="shrink-0 text-right">
+                    <span class="text-[10px] font-semibold text-slate-400 px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                        Operational Advisory
+                    </span>
+                </div>
+            </div>
+        </div>
+    @elseif(isset($weather))
+        <!-- Graceful Fallback Banner When Weather Telemetry is Unavailable or Offline -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl flex items-start space-x-3 text-xs">
+            <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0 mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-300">Operational Weather Telemetry</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400">Offline / Standby</span>
+                </div>
+                <p class="text-slate-400 text-[11px] mt-1">{{ $weather['message'] ?? 'Data telemetri cuaca eksternal sementara tidak dapat dimuat.' }}</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">{{ $weather['operational_note'] ?? 'Sistem pelacakan historis dan perhitungan jadwal SLA tetap berjalan aman.' }}</p>
+            </div>
+        </div>
+    @endif
+
+    <!-- Interactive Route Map (Leaflet.js + OpenStreetMap) -->
     <div class="bg-slate-900/90 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="p-4 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
                 <h2 class="text-sm font-bold text-white flex items-center space-x-2">
                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
                     <span>Geospatial Maritime & Air Corridor Map</span>
                 </h2>
-                <p class="text-[11px] text-slate-400">Live plotting of departure, historical checkpoints and destination terminal</p>
+                <p class="text-[11px] text-slate-400">
+                    Live plotting of departure, historical checkpoints, and destination terminal via
+                    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" class="text-cyan-400 underline hover:text-cyan-300">OpenStreetMap</a>
+                </p>
             </div>
-            <div class="flex items-center space-x-4 text-xs">
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-slate-300">Origin</span></span>
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span><span class="text-slate-300">Waypoints</span></span>
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-300">Exception Spot</span></span>
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-slate-300">Destination</span></span>
+
+            <!-- Legend & Interactive Controls -->
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-slate-300 text-[11px]">Origin</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span><span class="text-slate-300 text-[11px]">Waypoints</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-300 text-[11px]">Incident Spot</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-slate-300 text-[11px]">Destination</span></span>
+                <button type="button" id="btnResetMapView" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700 transition">
+                    Fit Bounds
+                </button>
             </div>
         </div>
 
-        <div id="shipmentMap" class="h-96 w-full bg-slate-950"></div>
+        <div id="shipmentMap" class="h-[420px] w-full bg-slate-950 relative z-0"></div>
     </div>
 
     <!-- Operator Exception Management Section -->
@@ -689,6 +803,75 @@
 @endif
 
 @push('scripts')
+@php
+    $originPoint = null;
+    if ($shipment->originLocation && $shipment->originLocation->latitude !== null && $shipment->originLocation->longitude !== null) {
+        $originPoint = [
+            'type' => 'origin',
+            'lat' => (float) $shipment->originLocation->latitude,
+            'lng' => (float) $shipment->originLocation->longitude,
+            'name' => $shipment->originLocation->name,
+            'code' => $shipment->originLocation->code,
+            'city' => $shipment->originLocation->city,
+            'country' => $shipment->originLocation->country,
+            'status' => 'ORIGIN DISPATCH NODE',
+            'event_type' => 'Facility Origin',
+            'time' => $shipment->expected_departure->format('M d, Y H:i'),
+            'time_human' => 'Scheduled Departure',
+            'description' => 'Origin facility & port of departure: ' . $shipment->originLocation->city . ', ' . $shipment->originLocation->country,
+            'is_exception' => false,
+            'badge' => 'bg-emerald-950 text-emerald-400 border border-emerald-800',
+        ];
+    }
+
+    $eventPoints = [];
+    $isDelivered = ($shipment->current_status === 'delivered');
+
+    foreach ($timeline as $ev) {
+        if ($ev->latitude !== null && $ev->longitude !== null) {
+            $isExc = $ev->isExceptionEvent();
+            $eventPoints[] = [
+                'type' => $isExc ? 'exception' : 'waypoint',
+                'lat' => (float) $ev->latitude,
+                'lng' => (float) $ev->longitude,
+                'name' => $ev->location ? $ev->location->name : 'Transit Corridor GPS Telemetry',
+                'code' => $ev->location?->code ?? 'GPS',
+                'city' => $ev->location?->city ?? 'Corridor',
+                'country' => $ev->location?->country ?? '',
+                'status' => strtoupper(str_replace('_', ' ', $ev->status)),
+                'event_type' => ucwords(str_replace('_', ' ', $ev->event_type)),
+                'time' => $ev->event_time->format('M d, Y H:i'),
+                'time_human' => $ev->event_time->diffForHumans(),
+                'description' => $ev->description,
+                'is_exception' => $isExc,
+                'created_by' => $ev->creator?->name ?? 'Operations Desk',
+                'badge' => $isExc
+                    ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                    : 'bg-cyan-950 text-cyan-300 border border-cyan-800',
+            ];
+        }
+    }
+
+    $destinationPoint = null;
+    if ($shipment->destinationLocation && $shipment->destinationLocation->latitude !== null && $shipment->destinationLocation->longitude !== null) {
+        $destinationPoint = [
+            'type' => 'destination',
+            'lat' => (float) $shipment->destinationLocation->latitude,
+            'lng' => (float) $shipment->destinationLocation->longitude,
+            'name' => $shipment->destinationLocation->name,
+            'code' => $shipment->destinationLocation->code,
+            'city' => $shipment->destinationLocation->city,
+            'country' => $shipment->destinationLocation->country,
+            'status' => 'DESTINATION DISCHARGE PORT',
+            'event_type' => 'Final Destination',
+            'time' => $shipment->estimated_arrival ? $shipment->estimated_arrival->format('M d, Y H:i') : $shipment->expected_arrival->format('M d, Y H:i'),
+            'time_human' => 'Target Arrival',
+            'description' => 'Target discharge terminal & consignee receiving port: ' . $shipment->destinationLocation->city . ', ' . $shipment->destinationLocation->country,
+            'is_exception' => false,
+            'badge' => 'bg-blue-950 text-blue-400 border border-blue-800',
+        ];
+    }
+@endphp
 <script>
     function autoFillCoords(selectElem) {
         const selected = selectElem.options[selectElem.selectedIndex];
@@ -700,97 +883,196 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        const points = [];
+        const originPoint = @json($originPoint);
+        const eventPoints = @json($eventPoints);
+        const destinationPoint = @json($destinationPoint);
+        const isDelivered = {{ $isDelivered ? 'true' : 'false' }};
 
-        // Origin
-        @if($shipment->originLocation->latitude && $shipment->originLocation->longitude)
-            points.push({
-                lat: {{ $shipment->originLocation->latitude }},
-                lng: {{ $shipment->originLocation->longitude }},
-                title: "Origin: {{ $shipment->originLocation->name }} ({{ $shipment->originLocation->code }})",
-                type: 'origin'
-            });
-        @endif
+        // Determine center coordinate
+        let defaultCenter = [20.0, 0.0];
+        let defaultZoom = 2;
 
-        // Historical Checkpoints
-        @foreach($timeline as $ev)
-            @if($ev->latitude && $ev->longitude)
-                points.push({
-                    lat: {{ $ev->latitude }},
-                    lng: {{ $ev->longitude }},
-                    title: "{{ addslashes($ev->status) }}: {{ addslashes($ev->description) }}",
-                    date: "{{ $ev->event_time->format('M d, H:i') }}",
-                    type: "{{ $ev->isExceptionEvent() ? 'exception' : 'checkpoint' }}"
-                });
-            @endif
-        @endforeach
+        if (eventPoints.length > 0) {
+            const lastEv = eventPoints[eventPoints.length - 1];
+            defaultCenter = [lastEv.lat, lastEv.lng];
+            defaultZoom = 4;
+        } else if (originPoint) {
+            defaultCenter = [originPoint.lat, originPoint.lng];
+            defaultZoom = 4;
+        }
 
-        // Destination
-        @if($shipment->destinationLocation->latitude && $shipment->destinationLocation->longitude)
-            points.push({
-                lat: {{ $shipment->destinationLocation->latitude }},
-                lng: {{ $shipment->destinationLocation->longitude }},
-                title: "Destination: {{ $shipment->destinationLocation->name }} ({{ $shipment->destinationLocation->code }})",
-                type: 'destination'
-            });
-        @endif
-
-        const defaultCenter = points.length > 0 ? [points[0].lat, points[0].lng] : [20.0, 0.0];
+        // Initialize Leaflet Map
         const map = L.map('shipmentMap', {
             zoomControl: true,
-            scrollWheelZoom: false
-        }).setView(defaultCenter, 3);
+            scrollWheelZoom: false,
+            minZoom: 2,
+            maxZoom: 18
+        }).setView(defaultCenter, defaultZoom);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-            subdomains: 'abcd',
-            maxZoom: 19
+        // Standard OpenStreetMap TileLayer with explicit attribution
+        const osmStandard = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        const latlngs = [];
+        // All markers and coordinates for bounds fitting
+        const allMarkers = [];
+        const allCoords = [];
+        const traveledCoords = [];
 
-        points.forEach((pt) => {
-            const latlng = [pt.lat, pt.lng];
-            latlngs.push(latlng);
+        // Helper to format popup HTML
+        function createPopupContent(pt, colorHex) {
+            return `
+                <div class="p-2.5 min-w-[240px] max-w-[280px] font-sans">
+                    <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-700/80">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded ${pt.badge || 'bg-slate-800 text-slate-200'}">
+                            ${pt.status}
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">${pt.event_type || ''}</span>
+                    </div>
+                    <div class="mt-2 text-xs font-bold text-white leading-tight">${pt.name}</div>
+                    <div class="text-[10px] text-cyan-400 font-mono mt-0.5">
+                        ${pt.city ? `${pt.city}, ` : ''}${pt.country || ''} &bull; [${pt.lat.toFixed(4)}, ${pt.lng.toFixed(4)}]
+                    </div>
+                    <div class="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                        ${pt.description}
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-[10px] text-slate-400">
+                        <span>${pt.time}</span>
+                        ${pt.created_by ? `<span>By: <strong class="text-slate-300">${pt.created_by}</strong></span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
 
-            let color = '#38bdf8';
-            let radius = 6;
-            if (pt.type === 'origin') {
-                color = '#10b981';
-                radius = 8;
-            } else if (pt.type === 'destination') {
-                color = '#3b82f6';
-                radius = 8;
-            } else if (pt.type === 'exception') {
-                color = '#f43f5e';
-                radius = 8;
-            }
+        // 1. Plot Origin Node
+        if (originPoint) {
+            const originCoord = [originPoint.lat, originPoint.lng];
+            allCoords.push(originCoord);
+            traveledCoords.push(originCoord);
 
-            const marker = L.circleMarker(latlng, {
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.9,
-                radius: radius,
-                weight: 2
+            const originMarker = L.circleMarker(originCoord, {
+                radius: 9,
+                color: '#ffffff',
+                weight: 2.5,
+                fillColor: '#10b981', // Emerald
+                fillOpacity: 1.0
             }).addTo(map);
 
-            marker.bindPopup(`<div class="text-xs">
-                <strong style="color: ${color}">${pt.title}</strong>
-                ${pt.date ? `<div class="text-[10px] text-slate-400 mt-1">${pt.date}</div>` : ''}
-            </div>`);
+            originMarker.bindPopup(createPopupContent(originPoint, '#10b981'));
+            allMarkers.push(originMarker);
+        }
+
+        // 2. Plot Tracking Events
+        eventPoints.forEach((ev, idx) => {
+            const coord = [ev.lat, ev.lng];
+            allCoords.push(coord);
+            traveledCoords.push(coord);
+
+            const isLatest = (idx === eventPoints.length - 1);
+            let color = ev.is_exception ? '#f43f5e' : '#06b6d4';
+            let radius = isLatest ? 9 : 7;
+
+            // Highlight latest active telemetry ping with ping ring
+            if (isLatest) {
+                const pulseIcon = L.divIcon({
+                    className: 'relative',
+                    html: `
+                        <div class="relative flex items-center justify-center">
+                            <span class="absolute w-6 h-6 rounded-full ${ev.is_exception ? 'bg-rose-500/40' : 'bg-cyan-500/40'} animate-ping"></span>
+                            <span class="relative block w-4 h-4 rounded-full border-2 border-white ${ev.is_exception ? 'bg-rose-500' : 'bg-cyan-400'} shadow-lg"></span>
+                        </div>
+                    `,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                const pulseMarker = L.marker(coord, { icon: pulseIcon }).addTo(map);
+                pulseMarker.bindPopup(createPopupContent(ev, color));
+                allMarkers.push(pulseMarker);
+            } else {
+                const marker = L.circleMarker(coord, {
+                    radius: radius,
+                    color: '#ffffff',
+                    weight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.95
+                }).addTo(map);
+
+                marker.bindPopup(createPopupContent(ev, color));
+                allMarkers.push(marker);
+            }
         });
 
-        if (latlngs.length > 1) {
-            const polyline = L.polyline(latlngs, {
-                color: '#06b6d4',
-                weight: 3,
-                opacity: 0.8,
-                dashArray: '5, 8',
-                lineJoin: 'round'
+        // 3. Plot Destination Node
+        if (destinationPoint) {
+            const destCoord = [destinationPoint.lat, destinationPoint.lng];
+            allCoords.push(destCoord);
+
+            if (isDelivered) {
+                traveledCoords.push(destCoord);
+            }
+
+            const destMarker = L.circleMarker(destCoord, {
+                radius: 9,
+                color: '#ffffff',
+                weight: 2.5,
+                fillColor: '#3b82f6', // Blue
+                fillOpacity: 1.0
             }).addTo(map);
 
-            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+            destMarker.bindPopup(createPopupContent(destinationPoint, '#3b82f6'));
+            allMarkers.push(destMarker);
         }
+
+        // 4. Polylines
+        // (A) Solid line for traveled path
+        if (traveledCoords.length > 1) {
+            L.polyline(traveledCoords, {
+                color: '#06b6d4',
+                weight: 3.5,
+                opacity: 0.9,
+                lineJoin: 'round'
+            }).addTo(map);
+        }
+
+        // (B) Dashed line for remaining path to destination (if not yet delivered)
+        if (!isDelivered && destinationPoint && traveledCoords.length > 0) {
+            const lastCoord = traveledCoords[traveledCoords.length - 1];
+            const destCoord = [destinationPoint.lat, destinationPoint.lng];
+
+            L.polyline([lastCoord, destCoord], {
+                color: '#3b82f6',
+                weight: 2.5,
+                opacity: 0.7,
+                dashArray: '6, 8',
+                lineJoin: 'round'
+            }).addTo(map);
+        }
+
+        // Auto-fit bounds
+        function fitMapToBounds() {
+            if (allCoords.length > 1) {
+                const bounds = L.latLngBounds(allCoords);
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+            } else if (allCoords.length === 1) {
+                map.setView(allCoords[0], 6);
+            }
+        }
+
+        fitMapToBounds();
+
+        // Fit Bounds Button
+        const resetBtn = document.getElementById('btnResetMapView');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                fitMapToBounds();
+            });
+        }
+
+        // Invalidate map size on window resize
+        window.addEventListener('resize', function () {
+            map.invalidateSize();
+        });
     });
 </script>
 @endpush
