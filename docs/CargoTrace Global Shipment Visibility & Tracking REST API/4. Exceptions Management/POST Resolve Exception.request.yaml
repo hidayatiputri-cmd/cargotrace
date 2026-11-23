@@ -1,0 +1,18 @@
+$kind: http-request
+description: Explicit endpoint to mark exception RESOLVED and restore shipment status to IN_TRANSIT.
+url: "{{base_url}}/exceptions/{{exception_id}}/resolve"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "resolution_notes": "Cyclone passed; vessel resumed standard maritime corridor. Status restored."
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

@@ -310,6 +310,34 @@ class ShipmentService
     }
 
     /**
+     * Delete a shipment and related records within a transaction, recording audit log.
+     */
+    public function deleteShipment(Shipment $shipment, ?User $actor = null): bool
+    {
+        return DB::transaction(function () use ($shipment, $actor) {
+            $oldValues = $shipment->toArray();
+            $shipmentId = $shipment->id;
+
+            AuditLog::log(
+                $actor?->id,
+                'delete_shipment',
+                'Shipment',
+                $shipmentId,
+                $oldValues,
+                null
+            );
+
+            // Cleanly delete child items and relationships
+            $shipment->items()->delete();
+            $shipment->trackingEvents()->delete();
+            $shipment->exceptions()->delete();
+            $shipment->notifications()->delete();
+
+            return (bool) $shipment->delete();
+        });
+    }
+
+    /**
      * Get shipment with all relationships eagerly loaded.
      */
     public function getShipmentWithFullDetails(Shipment $shipment): Shipment

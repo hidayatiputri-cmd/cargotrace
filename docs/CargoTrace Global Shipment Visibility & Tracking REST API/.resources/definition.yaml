@@ -1,0 +1,10 @@
+$kind: collection
+description: Complete REST API collection for CargoTrace with Sanctum token authentication, role-based authorization, shipment lifecycle, historical tracking, SLA delay assessment, and operational exception management.
+variables:
+  base_url: http://127.0.0.1:8000/api
+  token: ""
+  admin_token: ""
+  operator_token: ""
+  customer_token: ""
+  shipment_id: "1"
+  exception_id: "1"

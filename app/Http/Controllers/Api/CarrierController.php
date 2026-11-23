@@ -3,36 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCarrierRequest;
+use App\Http\Resources\CarrierResource;
 use App\Models\Carrier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CarrierController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * List carriers (GET /api/carriers).
+     */
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json([
-            'data' => Carrier::all(),
-        ]);
+        $query = Carrier::query();
+
+        if ($request->has('status')) {
+            $query->where('status', $request->query('status'));
+        }
+
+        return CarrierResource::collection($query->orderBy('name')->get());
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * Create a new carrier (POST /api/carriers).
+     */
+    public function store(StoreCarrierRequest $request): JsonResponse
     {
-        Gate::authorize('create', Carrier::class);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:30', 'unique:carriers,code'],
-            'contact_info' => ['nullable', 'string'],
-            'status' => ['required', 'in:active,inactive'],
-        ]);
-
-        $carrier = Carrier::create($validated);
+        $carrier = Carrier::create($request->validated());
 
         return response()->json([
-            'message' => 'Carrier created.',
-            'carrier' => $carrier,
+            'message' => 'Carrier created successfully.',
+            'data' => new CarrierResource($carrier),
         ], 201);
     }
 }

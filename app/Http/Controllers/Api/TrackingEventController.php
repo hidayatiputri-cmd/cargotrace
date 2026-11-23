@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTrackingEventRequest;
+use App\Http\Resources\TrackingEventResource;
 use App\Models\Shipment;
 use App\Services\TrackingService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 class TrackingEventController extends Controller
@@ -15,29 +17,28 @@ class TrackingEventController extends Controller
         protected TrackingService $trackingService
     ) {}
 
-    public function store(Request $request, Shipment $shipment): JsonResponse
+    /**
+     * Get historical tracking timeline for a shipment (GET /api/shipments/{id}/tracking).
+     */
+    public function index(Shipment $shipment): AnonymousResourceCollection
     {
-        Gate::authorize('addTrackingEvent', $shipment);
+        Gate::authorize('view', $shipment);
 
-        $validated = $request->validate([
-            'status' => ['required', 'string'],
-            'event_type' => ['required', 'string'],
-            'event_time' => ['nullable', 'date'],
-            'location_id' => ['nullable', 'exists:locations,id'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'description' => ['required', 'string', 'max:1000'],
-            'estimated_arrival' => ['nullable', 'date'],
-            'allow_terminal_reversal' => ['nullable', 'boolean'],
-            'reversal_reason' => ['nullable', 'string', 'max:500'],
-        ]);
+        $timeline = $this->trackingService->getTimeline($shipment);
 
-        $event = $this->trackingService->addTrackingEvent($shipment, $validated, $request->user());
+        return TrackingEventResource::collection($timeline);
+    }
+
+    /**
+     * Add tracking checkpoint event to a shipment (POST /api/shipments/{id}/tracking).
+     */
+    public function store(StoreTrackingEventRequest $request, Shipment $shipment): JsonResponse
+    {
+        $event = $this->trackingService->addTrackingEvent($shipment, $request->validated(), $request->user());
 
         return response()->json([
-            'message' => 'Tracking checkpoint registered.',
-            'event' => $event->load('location'),
-            'shipment' => $shipment->fresh(),
+            'message' => 'Tracking checkpoint registered successfully.',
+            'data' => new TrackingEventResource($event->load(['location', 'creator'])),
         ], 201);
     }
 }

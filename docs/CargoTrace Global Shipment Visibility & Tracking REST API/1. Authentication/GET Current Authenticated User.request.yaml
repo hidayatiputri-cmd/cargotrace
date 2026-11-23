@@ -1,0 +1,11 @@
+$kind: http-request
+description: Returns current authenticated user and role profile.
+url: "{{base_url}}/user"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

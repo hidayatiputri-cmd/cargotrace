@@ -1,0 +1,11 @@
+$kind: http-request
+description: Delete shipment and cascade items (Admin only).
+url: "{{base_url}}/shipments/{{shipment_id}}"
+method: DELETE
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

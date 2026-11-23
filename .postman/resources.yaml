@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 5000b580-f912-4fc1-88ea-e9280c2e1dde
+
+localResources:
+  collections:
+    - ../docs/CargoTrace Global Shipment Visibility & Tracking REST API
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../docs/CargoTrace Global Shipment Visibility & Tracking REST API: cargotrace-api-collection-v1

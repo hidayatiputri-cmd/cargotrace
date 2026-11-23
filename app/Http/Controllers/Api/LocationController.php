@@ -3,38 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreLocationRequest;
+use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class LocationController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * List locations (GET /api/locations).
+     */
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json([
-            'data' => Location::all(),
-        ]);
+        $query = Location::query();
+
+        if ($request->has('country')) {
+            $query->where('country', $request->query('country'));
+        }
+
+        return LocationResource::collection($query->orderBy('name')->get());
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * Create a new location (POST /api/locations).
+     */
+    public function store(StoreLocationRequest $request): JsonResponse
     {
-        Gate::authorize('create', Location::class);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:30'],
-            'city' => ['required', 'string', 'max:100'],
-            'country' => ['required', 'string', 'max:100'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
-        ]);
-
-        $location = Location::create($validated);
+        $location = Location::create($request->validated());
 
         return response()->json([
-            'message' => 'Location created.',
-            'location' => $location,
+            'message' => 'Location node created successfully.',
+            'data' => new LocationResource($location),
         ], 201);
     }
 }

@@ -1,0 +1,11 @@
+$kind: http-request
+description: Get detailed shipment info including carrier, locations, SLA stats, delay reason, items, and tracking history.
+url: "{{base_url}}/shipments/{{shipment_id}}"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3000

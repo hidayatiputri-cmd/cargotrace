@@ -1,0 +1,51 @@
+$kind: http-request
+description: Create shipment with items and initial tracking event (Operator/Admin only).
+url: "{{base_url}}/shipments"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "shipment_number": "CT-API-2026-X01",
+        "customer_id": 3,
+        "carrier_id": 1,
+        "origin_location_id": 1,
+        "destination_location_id": 2,
+        "cargo_type": "Precision Diagnostic Robotic Arms",
+        "weight": 6400,
+        "volume": 28.5,
+        "expected_departure": "2026-11-25 08:00:00",
+        "expected_arrival": "2026-12-05 18:00:00",
+        "estimated_arrival": "2026-12-05 18:00:00",
+        "current_status": "created",
+        "items": [
+            {
+                "item_name": "Articulated Arm Assemblies",
+                "quantity": 12,
+                "weight": 4800,
+                "description": "Cleanroom certified packaging Class 100"
+            },
+            {
+                "item_name": "Servo Actuator Control Hubs",
+                "quantity": 24,
+                "weight": 1600,
+                "description": "Electrostatic shielded boxes"
+            }
+        ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      var res = pm.response.json();
+      if (res.data && res.data.id) {
+          pm.collectionVariables.set('shipment_id', res.data.id);
+      }
+    language: text/javascript
+order: 2000

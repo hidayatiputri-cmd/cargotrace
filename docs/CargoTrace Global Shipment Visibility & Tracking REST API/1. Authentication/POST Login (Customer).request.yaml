@@ -1,0 +1,26 @@
+$kind: http-request
+description: Login as Consignee Customer. Scoped strictly to own shipments.
+url: "{{base_url}}/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "customer@cargotrace.test",
+        "password": "password",
+        "device_name": "Postman-Customer"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      var jsonData = pm.response.json();
+      if (jsonData.access_token) {
+          pm.collectionVariables.set('token', jsonData.access_token);
+          pm.collectionVariables.set('customer_token', jsonData.access_token);
+          console.log('Customer token saved to collection variable: ' + jsonData.access_token);
+      }
+    language: text/javascript
+order: 4000

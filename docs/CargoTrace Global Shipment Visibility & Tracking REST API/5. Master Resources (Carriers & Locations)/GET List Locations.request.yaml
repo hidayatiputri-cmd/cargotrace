@@ -1,0 +1,11 @@
+$kind: http-request
+description: List location hubs with geographic coordinates.
+url: "{{base_url}}/locations"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3000

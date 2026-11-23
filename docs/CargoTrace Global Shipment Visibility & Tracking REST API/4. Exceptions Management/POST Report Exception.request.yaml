@@ -1,0 +1,30 @@
+$kind: http-request
+description: "Report an operational exception. Supported types: CUSTOMS_HOLD, WEATHER_DELAY, PORT_CONGESTION, DAMAGED, MISROUTED, DOCUMENTATION_ISSUE."
+url: "{{base_url}}/shipments/{{shipment_id}}/exceptions"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "type": "WEATHER_DELAY",
+        "severity": "HIGH",
+        "description": "Tropical cyclone in Pacific maritime transit corridor. Vessel rerouted 350nm south.",
+        "estimated_delay_hours": 36,
+        "detected_at": "2026-11-23 12:00:00"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      var res = pm.response.json();
+      if (res.data && res.data.id) {
+          pm.collectionVariables.set('exception_id', res.data.id);
+      }
+    language: text/javascript
+order: 2000

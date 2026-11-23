@@ -1,0 +1,11 @@
+$kind: http-request
+description: Retrieve chronological tracking history with location coordinates.
+url: "{{base_url}}/shipments/{{shipment_id}}/tracking"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1000

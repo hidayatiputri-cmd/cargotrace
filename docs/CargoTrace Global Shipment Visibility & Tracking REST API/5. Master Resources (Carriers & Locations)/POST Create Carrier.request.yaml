@@ -1,0 +1,21 @@
+$kind: http-request
+description: Create carrier master record (Admin only).
+url: "{{base_url}}/carriers"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "name": "Evergreen Marine Corp",
+        "code": "EGLV",
+        "contact_info": "ops@evergreen-marine.com | +886 2 2501 1111",
+        "status": "active"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2000

@@ -1,0 +1,11 @@
+$kind: http-request
+description: Revokes current Sanctum bearer token.
+url: "{{base_url}}/logout"
+method: POST
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 6000

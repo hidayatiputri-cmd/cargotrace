@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,25 +16,51 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Authenticate user and issue Sanctum token.
+     * Register a new user account (POST /api/register).
      */
-    public function login(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-            'device_name' => ['nullable', 'string'],
+        $validated = $request->validated();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'] ?? User::ROLE_CUSTOMER,
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $tokenName = $request->input('device_name', 'CargoTrace-API-Token');
+        $token = $user->createToken($tokenName)->plainTextToken;
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        AuditLog::log($user->id, 'api_register', 'User', $user->id, null, [
+            'email' => $user->email,
+            'role' => $user->role,
+            'ip' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'message' => 'User registered successfully.',
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => new UserResource($user),
+        ], 201);
+    }
+
+    /**
+     * Authenticate user and issue Sanctum token (POST /api/login).
+     */
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
+                'email' => ['Invalid email credentials or password.'],
             ]);
         }
 
-        $tokenName = $request->input('device_name', 'CargoTrace-API-Token');
+        $tokenName = $validated['device_name'] ?? 'CargoTrace-API-Token';
         $token = $user->createToken($tokenName)->plainTextToken;
 
         AuditLog::log($user->id, 'api_login', 'User', $user->id, null, ['ip' => $request->ip()]);
@@ -40,17 +69,12 @@ class AuthController extends Controller
             'message' => 'Authenticated successfully.',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
+            'user' => new UserResource($user),
         ]);
     }
 
     /**
-     * Revoke active token.
+     * Revoke active token (POST /api/logout).
      */
     public function logout(Request $request): JsonResponse
     {
@@ -62,12 +86,12 @@ class AuthController extends Controller
     }
 
     /**
-     * Get authenticated user profile.
+     * Get authenticated user profile (GET /api/user).
      */
     public function me(Request $request): JsonResponse
     {
         return response()->json([
-            'user' => $request->user(),
+            'user' => new UserResource($request->user()),
         ]);
     }
 }

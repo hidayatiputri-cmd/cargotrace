@@ -1,0 +1,11 @@
+$kind: http-request
+description: List all exceptions reported for a shipment.
+url: "{{base_url}}/shipments/{{shipment_id}}/exceptions"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1000

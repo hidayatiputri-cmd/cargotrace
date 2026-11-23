@@ -1,0 +1,23 @@
+$kind: http-request
+description: Create location hub (Admin only).
+url: "{{base_url}}/locations"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "name": "Port of Antwerp-Bruges",
+        "code": "BEANR",
+        "city": "Antwerp",
+        "country": "Belgium",
+        "latitude": 51.2194,
+        "longitude": 4.4025
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000

@@ -1,0 +1,11 @@
+$kind: http-request
+description: List in-app notifications for authenticated user.
+url: "{{base_url}}/notifications"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1000

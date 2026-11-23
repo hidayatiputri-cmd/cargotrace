@@ -1,0 +1,20 @@
+$kind: http-request
+description: Update shipment status and attributes. Evaluates status transition and recalculates ETA delay.
+url: "{{base_url}}/shipments/{{shipment_id}}"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "current_status": "in_transit",
+        "estimated_arrival": "2026-12-07 12:00:00",
+        "cargo_type": "Precision Diagnostic Robotic Arms (Updated)"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000

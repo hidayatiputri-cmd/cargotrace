@@ -291,4 +291,58 @@ class ExceptionService
             return $exception;
         });
     }
+
+    /**
+     * Update an exception (PATCH /api/exceptions/{id}).
+     * Seamlessly routes lifecycle status updates (INVESTIGATING, RESOLVED)
+     * through canonical lifecycle handlers or updates metadata with audit trail.
+     *
+     * @param ShipmentException $exception
+     * @param array $data
+     * @param User|null $actor
+     * @return ShipmentException
+     */
+    public function updateException(ShipmentException $exception, array $data, ?User $actor = null): ShipmentException
+    {
+        $targetStatus = !empty($data['status']) ? strtoupper(trim($data['status'])) : null;
+
+        // If transitioning to INVESTIGATING
+        if ($targetStatus === ShipmentException::STATUS_INVESTIGATING) {
+            return $this->startInvestigation($exception, $data, $actor);
+        }
+
+        // If transitioning to RESOLVED
+        if ($targetStatus === ShipmentException::STATUS_RESOLVED) {
+            return $this->resolveException($exception, $data, $actor);
+        }
+
+        // Otherwise metadata/field update
+        return DB::transaction(function () use ($exception, $data, $actor) {
+            $oldValues = $exception->toArray();
+
+            if (!empty($data['severity'])) {
+                $severity = strtoupper(trim($data['severity']));
+                if (in_array($severity, ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], true)) {
+                    $exception->severity = $severity;
+                }
+            }
+
+            if (!empty($data['description'])) {
+                $exception->description = $data['description'];
+            }
+
+            $exception->save();
+
+            AuditLog::log(
+                $actor?->id,
+                'update_exception',
+                'ShipmentException',
+                $exception->id,
+                $oldValues,
+                $exception->toArray()
+            );
+
+            return $exception;
+        });
+    }
 }

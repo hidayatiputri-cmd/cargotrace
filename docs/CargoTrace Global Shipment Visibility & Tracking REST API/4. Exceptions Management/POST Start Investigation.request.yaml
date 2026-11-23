@@ -1,0 +1,18 @@
+$kind: http-request
+description: Explicit endpoint to advance exception to INVESTIGATING.
+url: "{{base_url}}/exceptions/{{exception_id}}/investigate"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "investigation_notes": "Maritime broker contacted customs inspectorate."
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000

@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreShipmentRequest;
+use App\Http\Requests\UpdateShipmentRequest;
+use App\Http\Resources\ShipmentResource;
 use App\Models\Shipment;
 use App\Services\ShipmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 class ShipmentController extends Controller
@@ -15,14 +19,21 @@ class ShipmentController extends Controller
         protected ShipmentService $shipmentService
     ) {}
 
-    public function index(Request $request): JsonResponse
+    /**
+     * List shipments with server-side pagination, search, and filters (GET /api/shipments).
+     */
+    public function index(Request $request): AnonymousResourceCollection
     {
         $filters = $request->only(['status', 'is_delayed', 'carrier_id', 'customer_id', 'search']);
-        $shipments = $this->shipmentService->listShipments($request->user(), $filters, $request->integer('per_page', 15));
+        $perPage = $request->integer('per_page', 15);
+        $shipments = $this->shipmentService->listShipments($request->user(), $filters, $perPage);
 
-        return response()->json($shipments);
+        return ShipmentResource::collection($shipments);
     }
 
+    /**
+     * Retrieve single shipment with eager loaded relationships (GET /api/shipments/{id}).
+     */
     public function show(Shipment $shipment): JsonResponse
     {
         Gate::authorize('view', $shipment);
@@ -30,68 +41,49 @@ class ShipmentController extends Controller
         $details = $this->shipmentService->getShipmentWithFullDetails($shipment);
 
         return response()->json([
-            'data' => $details,
+            'data' => new ShipmentResource($details),
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * Create a new shipment (POST /api/shipments).
+     */
+    public function store(StoreShipmentRequest $request): JsonResponse
     {
-        Gate::authorize('create', Shipment::class);
-
-        $validated = $request->validate([
-            'shipment_number' => ['nullable', 'string', 'max:50', 'unique:shipments,shipment_number'],
-            'customer_id' => ['required', 'exists:users,id'],
-            'carrier_id' => ['required', 'exists:carriers,id'],
-            'origin_location_id' => ['required', 'exists:locations,id'],
-            'destination_location_id' => ['required', 'exists:locations,id', 'different:origin_location_id'],
-            'cargo_type' => ['required', 'string', 'max:255'],
-            'weight' => ['required', 'numeric', 'min:0'],
-            'volume' => ['required', 'numeric', 'min:0'],
-            'expected_departure' => ['required', 'date'],
-            'expected_arrival' => ['required', 'date', 'after:expected_departure'],
-            'estimated_arrival' => ['nullable', 'date'],
-            'current_status' => ['nullable', 'string'],
-            'items' => ['nullable', 'array'],
-            'items.*.item_name' => ['required_with:items', 'string'],
-            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
-            'items.*.weight' => ['nullable', 'numeric', 'min:0'],
-            'items.*.description' => ['nullable', 'string'],
-        ]);
-
-        $shipment = $this->shipmentService->createShipment($validated, $request->user());
+        $shipment = $this->shipmentService->createShipment($request->validated(), $request->user());
+        $details = $this->shipmentService->getShipmentWithFullDetails($shipment);
 
         return response()->json([
             'message' => 'Shipment created successfully.',
-            'data' => $this->shipmentService->getShipmentWithFullDetails($shipment),
+            'data' => new ShipmentResource($details),
         ], 201);
     }
 
-    public function update(Request $request, Shipment $shipment): JsonResponse
+    /**
+     * Update an existing shipment (PUT/PATCH /api/shipments/{id}).
+     */
+    public function update(UpdateShipmentRequest $request, Shipment $shipment): JsonResponse
     {
-        Gate::authorize('update', $shipment);
-
-        $validated = $request->validate([
-            'customer_id' => ['sometimes', 'required', 'exists:users,id'],
-            'carrier_id' => ['sometimes', 'required', 'exists:carriers,id'],
-            'origin_location_id' => ['sometimes', 'required', 'exists:locations,id'],
-            'destination_location_id' => ['sometimes', 'required', 'exists:locations,id'],
-            'cargo_type' => ['sometimes', 'required', 'string', 'max:255'],
-            'weight' => ['sometimes', 'required', 'numeric', 'min:0'],
-            'volume' => ['sometimes', 'required', 'numeric', 'min:0'],
-            'expected_departure' => ['sometimes', 'required', 'date'],
-            'expected_arrival' => ['sometimes', 'required', 'date'],
-            'estimated_arrival' => ['nullable', 'date'],
-            'current_status' => ['sometimes', 'required', 'string'],
-            'allow_terminal_reversal' => ['nullable', 'boolean'],
-            'reversal_reason' => ['nullable', 'string', 'max:500'],
-            'items' => ['nullable', 'array'],
-        ]);
-
-        $updated = $this->shipmentService->updateShipment($shipment, $validated, $request->user());
+        $updated = $this->shipmentService->updateShipment($shipment, $request->validated(), $request->user());
+        $details = $this->shipmentService->getShipmentWithFullDetails($updated);
 
         return response()->json([
             'message' => 'Shipment updated successfully.',
-            'data' => $this->shipmentService->getShipmentWithFullDetails($updated),
+            'data' => new ShipmentResource($details),
+        ]);
+    }
+
+    /**
+     * Delete a shipment (DELETE /api/shipments/{id}).
+     */
+    public function destroy(Shipment $shipment): JsonResponse
+    {
+        Gate::authorize('delete', $shipment);
+
+        $this->shipmentService->deleteShipment($shipment, request()->user());
+
+        return response()->json([
+            'message' => "Shipment #{$shipment->shipment_number} deleted successfully.",
         ]);
     }
 }

@@ -1,0 +1,17 @@
+$kind: http-request
+description: Returns paginated list of shipments. Customer only sees own shipments; Operator/Admin sees all with filters.
+url: "{{base_url}}/shipments?status=in_transit&is_delayed=false&per_page=10&page=1&search=Semiconductor"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  status: in_transit
+  is_delayed: "false"
+  per_page: "10"
+  page: "1"
+  search: Semiconductor
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1000
