@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\AuditLogController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CarrierController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\LocaleController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\ShipmentController;
@@ -11,6 +12,9 @@ use App\Http\Controllers\Web\ShipmentExceptionController;
 use App\Http\Controllers\Web\TrackingEventController;
 use App\Http\Controllers\Web\UserController;
 use Illuminate\Support\Facades\Route;
+
+// Public Locale Switcher Route
+Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
 // Guest Routes
 Route::middleware('guest')->group(function () {

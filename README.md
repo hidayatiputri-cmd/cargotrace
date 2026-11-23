@@ -5,7 +5,7 @@
 [![MySQL 8.0+](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Leaflet.js](https://img.shields.io/badge/Leaflet.js-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com)
-[![Tests Passing](https://img.shields.io/badge/Tests-53%20Passed-emerald?style=for-the-badge&logo=checkmarx&logoColor=white)](#automated-testing-guide)
+[![Tests Passing](https://img.shields.io/badge/Tests-60%20Passed-emerald?style=for-the-badge&logo=checkmarx&logoColor=white)](#automated-testing-guide)
 
 **CargoTrace** is an enterprise-grade multi-modal shipment visibility, operational intelligence, and tracking platform built with Laravel 12 and MySQL. Designed for modern global logistics providers, carriers, port operators, and freight consignees, CargoTrace provides real-time geospatial tracking, strict status state machine lifecycle progression, deterministic SLA delay detection, incident exception handling, external weather telemetry, and a complete Laravel Sanctum-powered REST API.
 

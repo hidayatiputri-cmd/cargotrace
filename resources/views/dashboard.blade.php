@@ -8,21 +8,27 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div>
                 <div class="flex items-center space-x-2">
-                    <h1 class="text-2xl font-extrabold text-white">Welcome, {{ $user->name }}</h1>
+                    <h1 class="text-2xl font-extrabold text-white">
+                        @if(app()->getLocale() === 'id')
+                            Selamat Datang, {{ $user->name }}
+                        @else
+                            Welcome, {{ $user->name }}
+                        @endif
+                    </h1>
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider
                         @if($user->isAdmin()) bg-purple-950 text-purple-300 border border-purple-800
                         @elseif($user->isOperator()) bg-amber-950 text-amber-300 border border-amber-800
                         @else bg-cyan-950 text-cyan-300 border border-cyan-800 @endif">
-                        {{ $user->role }}
+                        @if($user->isAdmin()) {{ __('messages.nav.role_admin') }}
+                        @elseif($user->isOperator()) {{ __('messages.nav.role_operator') }}
+                        @else {{ __('messages.nav.role_customer') }} @endif
                     </span>
                 </div>
                 <p class="text-sm text-slate-400 mt-1">
-                    @if($user->isAdmin())
-                        Platform Administrator &bull; Global fleet oversight, master carriers, hub nodes & immutable audit logs.
-                    @elseif($user->isOperator())
-                        Logistics Operator &bull; Multi-modal dispatch desk, tracking milestones, telemetry pings & exception management.
+                    @if($user->isAdmin() || $user->isOperator())
+                        {{ __('messages.dashboard.subtitle_ops') }}
                     @else
-                        Customer Consignee Portal &bull; End-to-end container tracking, route milestones, and ETA SLA visibility.
+                        {{ __('messages.dashboard.subtitle_customer') }}
                     @endif
                 </p>
             </div>
@@ -31,11 +37,11 @@
                 @if($user->isAdmin() || $user->isOperator())
                     <a href="{{ route('shipments.create') }}" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span>Create Shipment</span>
+                        <span>{{ __('messages.dashboard.register_shipment') }}</span>
                     </a>
                 @endif
                 <a href="{{ route('shipments.index') }}" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-                    <span>View Shipments Registry</span>
+                    <span>{{ __('messages.dashboard.view_all') }}</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -47,61 +53,61 @@
         <!-- Active Shipments -->
         <a href="{{ route('shipments.index') }}" class="bg-slate-900/80 hover:bg-slate-850 p-5 rounded-2xl border border-slate-800 shadow transition group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Shipments</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ __('messages.dashboard.kpi_active_fleet') }}</span>
                 <span class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:scale-105 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </span>
             </div>
             <div class="mt-4 text-3xl font-extrabold text-cyan-400">{{ $metrics['active_shipments'] ?? $metrics['in_transit'] }}</div>
-            <div class="mt-1 text-xs text-slate-400">Underway & not delivered</div>
+            <div class="mt-1 text-xs text-slate-400">{{ __('messages.dashboard.kpi_active_desc') }}</div>
         </a>
 
         <!-- Delayed Shipments -->
         <a href="{{ route('shipments.index', ['is_delayed' => 1]) }}" class="bg-slate-900/80 hover:bg-slate-850 p-5 rounded-2xl border border-slate-800 shadow transition group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Delayed Shipments</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ __('messages.dashboard.kpi_delayed') }}</span>
                 <span class="p-2 rounded-xl bg-rose-500/10 text-rose-400 group-hover:scale-105 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </span>
             </div>
             <div class="mt-4 text-3xl font-extrabold text-rose-400">{{ $metrics['delayed'] }}</div>
-            <div class="mt-1 text-xs text-slate-400">Exceeding SLA threshold</div>
+            <div class="mt-1 text-xs text-slate-400">{{ __('messages.dashboard.kpi_delayed_desc') }}</div>
         </a>
 
         <!-- Open Exceptions -->
         <a href="{{ route('shipments.index', ['status' => 'exception']) }}" class="bg-slate-900/80 hover:bg-slate-850 p-5 rounded-2xl border border-slate-800 shadow transition group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Open Exceptions</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ __('messages.dashboard.kpi_exceptions') }}</span>
                 <span class="p-2 rounded-xl bg-amber-500/10 text-amber-400 group-hover:scale-105 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </span>
             </div>
             <div class="mt-4 text-3xl font-extrabold text-amber-400">{{ $metrics['open_exceptions'] }}</div>
-            <div class="mt-1 text-xs text-slate-400">Incidents under review</div>
+            <div class="mt-1 text-xs text-slate-400">{{ __('messages.dashboard.kpi_exceptions_desc') }}</div>
         </a>
 
         <!-- On-Time SLA Rate -->
         <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 shadow">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">On-Time SLA Rate</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ __('messages.dashboard.kpi_sla_rate') }}</span>
                 <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </span>
             </div>
             <div class="mt-4 text-3xl font-extrabold text-emerald-400">{{ $metrics['on_time_rate'] }}%</div>
-            <div class="mt-1 text-xs text-slate-400">Performance compliance</div>
+            <div class="mt-1 text-xs text-slate-400">{{ __('messages.dashboard.kpi_sla_desc') }}</div>
         </div>
 
         <!-- Total Bookings -->
         <a href="{{ route('shipments.index') }}" class="bg-slate-900/80 hover:bg-slate-850 p-5 rounded-2xl border border-slate-800 shadow transition group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Lifetime</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</span>
                 <span class="p-2 rounded-xl bg-blue-500/10 text-blue-400 group-hover:scale-105 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </span>
             </div>
             <div class="mt-4 text-3xl font-extrabold text-white">{{ $metrics['total_shipments'] }}</div>
-            <div class="mt-1 text-xs text-slate-400">{{ $metrics['delivered'] }} delivered safely</div>
+            <div class="mt-1 text-xs text-slate-400">{{ $metrics['delivered'] }} {{ __('messages.status.delivered') }}</div>
         </a>
     </div>
 
@@ -109,8 +115,8 @@
     @if(!empty($metrics['status_distribution']))
         <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl">
             <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Lifecycle Status Breakdown</span>
-                <span class="text-[11px] text-cyan-400 font-mono">{{ $metrics['total_shipments'] }} Total Bookings</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ __('messages.dashboard.lifecycle_distribution') }}</span>
+                <span class="text-[11px] text-cyan-400 font-mono">{{ $metrics['total_shipments'] }} Total</span>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
                 @foreach([
@@ -141,22 +147,22 @@
         <div class="lg:col-span-2 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="p-5 border-b border-slate-800 flex items-center justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-white">Recent Tracked Consignments</h2>
-                    <p class="text-xs text-slate-400">Live operational status and latest checkpoint pings</p>
+                    <h2 class="text-base font-bold text-white">{{ __('messages.dashboard.recent_shipments') }}</h2>
+                    <p class="text-xs text-slate-400">{{ __('messages.dashboard.recent_subtitle') }}</p>
                 </div>
-                <a href="{{ route('shipments.index') }}" class="text-xs font-semibold text-cyan-400 hover:text-cyan-300">View All &rarr;</a>
+                <a href="{{ route('shipments.index') }}" class="text-xs font-semibold text-cyan-400 hover:text-cyan-300">{{ __('messages.dashboard.view_all') }} &rarr;</a>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
                         <tr>
-                            <th class="py-3 px-4">Shipment #</th>
-                            <th class="py-3 px-4">Carrier & Cargo</th>
-                            <th class="py-3 px-4">Corridor</th>
-                            <th class="py-3 px-4">Status & Health</th>
-                            <th class="py-3 px-4">Target ETA</th>
-                            <th class="py-3 px-4 text-right">Action</th>
+                            <th class="py-3 px-4">{{ __('messages.shipments.col_shipment') }}</th>
+                            <th class="py-3 px-4">{{ __('messages.shipments.col_carrier_cargo') }}</th>
+                            <th class="py-3 px-4">{{ __('messages.shipments.col_route') }}</th>
+                            <th class="py-3 px-4">{{ __('messages.shipments.col_status') }}</th>
+                            <th class="py-3 px-4">{{ __('messages.shipments.col_schedule') }}</th>
+                            <th class="py-3 px-4 text-right">{{ __('messages.shipments.col_actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800/60">
@@ -195,13 +201,13 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-right">
                                     <a href="{{ route('shipments.show', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-                                        Track
+                                        {{ __('messages.shipments.view_timeline') }}
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-6 text-center text-slate-500">No shipments found.</td>
+                                <td colspan="6" class="py-6 text-center text-slate-500">{{ __('messages.dashboard.empty_shipments') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -216,7 +222,7 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                     <h3 class="text-sm font-bold text-white flex items-center space-x-2">
                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                        <span>Active Exceptions</span>
+                        <span>{{ __('messages.dashboard.kpi_exceptions') }}</span>
                     </h3>
                     <span class="text-xs text-rose-400 font-semibold">{{ $metrics['open_exceptions'] }} Open</span>
                 </div>
