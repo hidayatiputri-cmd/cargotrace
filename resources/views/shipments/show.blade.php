@@ -5,7 +5,7 @@
     <!-- Breadcrumb & Top Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center space-x-3">
-            <a href="{{ route('shipments.index') }}" class="p-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 transition" title="{{ __('messages.show.back_to_registry') }}">
+            <a href="{{ route('shipments.index') }}" class="p-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 transition" title="{{ __('messages.show.back_to_registry') }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
             <div>
@@ -47,7 +47,7 @@
                     <span>{{ __('messages.show.report_exception') }}</span>
                 </button>
 
-                <a href="{{ route('shipments.edit', $shipment) }}" class="p-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 border border-[#1e294b] transition" title="{{ __('messages.shipments.edit') }}">
+                <a href="{{ route('shipments.edit', $shipment) }}" class="p-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 border border-[#33215c] transition" title="{{ __('messages.shipments.edit') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </a>
             @endif
@@ -60,7 +60,7 @@
         $excessHours = max(0, $shipment->delay_hours - $thresholdHours);
     @endphp
     @if($shipment->is_delayed)
-        <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-950/80 via-[#101935] to-rose-950/80 border border-rose-800 shadow-xl flex items-start space-x-3 text-rose-200 text-xs">
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-950/80 via-[#1c1236] to-rose-950/80 border border-rose-800 shadow-xl flex items-start space-x-3 text-rose-200 text-xs">
             <div class="p-2 rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -75,7 +75,7 @@
                         @else bg-blue-900 text-blue-200 border border-blue-600 @endif">
                         Severity: {{ strtoupper($shipment->delay_severity) }}
                     </span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#080f24] text-slate-200 border border-[#1e294b]">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#120b24] text-slate-200 border border-[#33215c]">
                         +{{ $shipment->delay_hours }}h Total Delay
                     </span>
                     <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950/60 text-rose-300 border border-rose-800">
@@ -96,7 +96,7 @@
             </div>
         </div>
     @else
-        <div class="p-4 rounded-2xl bg-[#101935] border border-emerald-900/60 shadow-xl flex items-center justify-between text-xs">
+        <div class="p-4 rounded-2xl bg-[#1c1236] border border-emerald-900/60 shadow-xl flex items-center justify-between text-xs">
             <div class="flex items-center space-x-3">
                 <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -131,7 +131,7 @@
             $currentIdx = 3;
         }
     @endphp
-    <div class="bg-[#101935] p-5 rounded-2xl border border-[#1e294b] shadow-xl">
+    <div class="bg-[#1c1236] p-5 rounded-2xl border border-[#33215c] shadow-xl">
         <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Shipment Lifecycle Progression</span>
             <span class="text-[11px] font-mono text-pink-400">Stage {{ $currentIdx + 1 }} of 5</span>
@@ -151,7 +151,7 @@
                                 @if($shipment->current_status === 'delivered') bg-emerald-500 text-white ring-4 ring-emerald-500/30
                                 @elseif($shipment->current_status === 'exception' || $shipment->is_delayed) bg-rose-600 text-white ring-4 ring-rose-500/30
                                 @else bg-pink-500 text-white ring-4 ring-pink-500/30 animate-pulse @endif
-                            @else bg-[#080f24] text-slate-500 border border-[#1e294b] @endif">
+                            @else bg-[#120b24] text-slate-500 border border-[#33215c] @endif">
                             @if($isPassed)
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             @else
@@ -176,7 +176,7 @@
     @endphp
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Current Location Card -->
-        <div class="bg-gradient-to-br from-[#101935] to-[#080f24] p-4 rounded-2xl border border-pink-800/60 shadow-xl relative overflow-hidden">
+        <div class="bg-gradient-to-br from-[#1c1236] to-[#120b24] p-4 rounded-2xl border border-pink-800/60 shadow-xl relative overflow-hidden">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] uppercase font-bold text-pink-400 tracking-wider flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-pink-400 animate-ping"></span>
@@ -210,7 +210,7 @@
         </div>
 
         <!-- Origin -->
-        <div class="bg-[#101935] p-4 rounded-2xl border border-[#1e294b]">
+        <div class="bg-[#1c1236] p-4 rounded-2xl border border-[#33215c]">
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Origin Node</div>
             <div class="mt-1 text-sm font-bold text-white">{{ $shipment->originLocation->name }}</div>
             <div class="text-xs text-emerald-400 font-semibold">{{ $shipment->originLocation->city }}, {{ $shipment->originLocation->country }} ({{ $shipment->originLocation->code }})</div>
@@ -218,7 +218,7 @@
         </div>
 
         <!-- Destination -->
-        <div class="bg-[#101935] p-4 rounded-2xl border border-[#1e294b]">
+        <div class="bg-[#1c1236] p-4 rounded-2xl border border-[#33215c]">
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Destination Node</div>
             <div class="mt-1 text-sm font-bold text-white">{{ $shipment->destinationLocation->name }}</div>
             <div class="text-xs text-blue-400 font-semibold">{{ $shipment->destinationLocation->city }}, {{ $shipment->destinationLocation->country }} ({{ $shipment->destinationLocation->code }})</div>
@@ -226,7 +226,7 @@
         </div>
 
         <!-- Cargo & Specs -->
-        <div class="bg-[#101935] p-4 rounded-2xl border border-[#1e294b]">
+        <div class="bg-[#1c1236] p-4 rounded-2xl border border-[#33215c]">
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Cargo & Specs</div>
             <div class="mt-1 text-xs font-bold text-slate-200 truncate">{{ $shipment->cargo_type }}</div>
             <div class="mt-1 flex items-center space-x-3 text-xs text-slate-400">
@@ -239,8 +239,8 @@
 
     <!-- External Weather & Environmental Operational Context (Open-Meteo / OpenWeatherMap) -->
     @if(isset($weather) && $weather['available'])
-        <div class="bg-gradient-to-r from-[#101935] via-[#101935]/95 to-pink-950/20 p-5 rounded-2xl border border-[#1e294b] shadow-xl">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#1e294b]">
+        <div class="bg-gradient-to-r from-[#1c1236] via-[#1c1236]/95 to-fuchsia-950/25 p-5 rounded-2xl border border-[#33215c] shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#33215c]">
                 <div class="flex items-center space-x-3">
                     <div class="p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20 shrink-0">
                         @if($weather['condition_icon'] === 'sun')
@@ -259,7 +259,7 @@
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ $weather['advisory_badge'] }}">
                                 {{ $weather['advisory_level'] }}
                             </span>
-                            <span class="text-[10px] px-2 py-0.5 rounded bg-[#080f24] text-slate-300 font-mono border border-[#1e294b]">
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-[#120b24] text-slate-300 font-mono border border-[#33215c]">
                                 {{ $weather['source'] }}
                             </span>
                         </div>
@@ -278,21 +278,21 @@
 
             <!-- Metrics Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                <div class="bg-[#080f24] p-3 rounded-xl border border-[#1e294b]">
+                <div class="bg-[#120b24] p-3 rounded-xl border border-[#33215c]">
                     <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Atmospheric Condition</span>
                     <div class="mt-1 text-sm font-bold text-white flex items-center space-x-1.5 truncate">
                         <span>{{ $weather['condition_name'] }}</span>
                     </div>
                 </div>
 
-                <div class="bg-[#080f24] p-3 rounded-xl border border-[#1e294b]">
+                <div class="bg-[#120b24] p-3 rounded-xl border border-[#33215c]">
                     <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Ambient Temperature</span>
                     <div class="mt-1 text-sm font-bold text-pink-400 font-mono">
                         {{ $weather['temperature'] !== null ? $weather['temperature'] . ' ' . $weather['temperature_unit'] : 'N/A' }}
                     </div>
                 </div>
 
-                <div class="bg-[#080f24] p-3 rounded-xl border border-[#1e294b]">
+                <div class="bg-[#120b24] p-3 rounded-xl border border-[#33215c]">
                     <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Surface Wind Velocity</span>
                     <div class="mt-1 text-sm font-bold text-white font-mono">
                         {{ $weather['wind_speed'] }} {{ $weather['wind_unit'] }}
@@ -302,7 +302,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#080f24] p-3 rounded-xl border border-[#1e294b]">
+                <div class="bg-[#120b24] p-3 rounded-xl border border-[#33215c]">
                     <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Relative Humidity</span>
                     <div class="mt-1 text-sm font-bold text-white font-mono">
                         {{ $weather['humidity'] !== null ? $weather['humidity'] . '%' : 'N/A' }}
@@ -311,7 +311,7 @@
             </div>
 
             <!-- Deterministic Operational Advisory & Non-AI Notice -->
-            <div class="mt-4 p-3 rounded-xl bg-[#080f24] border border-[#1e294b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div class="mt-4 p-3 rounded-xl bg-[#120b24] border border-[#33215c] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div class="flex items-start space-x-2.5">
                     <svg class="w-4 h-4 text-pink-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <div>
@@ -320,7 +320,7 @@
                     </div>
                 </div>
                 <div class="shrink-0 text-right">
-                    <span class="text-[10px] font-semibold text-slate-400 px-2 py-0.5 rounded bg-[#101935] border border-[#1e294b]">
+                    <span class="text-[10px] font-semibold text-slate-400 px-2 py-0.5 rounded bg-[#1c1236] border border-[#33215c]">
                         Operational Advisory
                     </span>
                 </div>
@@ -328,14 +328,14 @@
         </div>
     @elseif(isset($weather))
         <!-- Graceful Fallback Banner When Weather Telemetry is Unavailable or Offline -->
-        <div class="p-4 rounded-2xl bg-[#101935] border border-[#1e294b] shadow-xl flex items-start space-x-3 text-xs">
+        <div class="p-4 rounded-2xl bg-[#1c1236] border border-[#33215c] shadow-xl flex items-start space-x-3 text-xs">
             <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0 mt-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
             <div class="flex-1">
                 <div class="flex items-center space-x-2">
                     <span class="font-bold text-slate-300">Operational Weather Telemetry</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#080f24] text-slate-400">Offline / Standby</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#120b24] text-slate-400">Offline / Standby</span>
                 </div>
                 <p class="text-slate-400 text-[11px] mt-1">{{ $weather['message'] ?? 'Data telemetri cuaca eksternal sementara tidak dapat dimuat.' }}</p>
                 <p class="text-slate-500 text-[10px] mt-0.5">{{ $weather['operational_note'] ?? 'Sistem pelacakan historis dan perhitungan jadwal SLA tetap berjalan aman.' }}</p>
@@ -344,8 +344,8 @@
     @endif
 
     <!-- Interactive Route Map (Leaflet.js + OpenStreetMap) -->
-    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-[#1e294b] flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-[#33215c] flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
                 <h2 class="text-sm font-bold text-white flex items-center space-x-2">
                     <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
@@ -363,18 +363,18 @@
                 <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span><span class="text-slate-300 text-[11px]">Waypoints</span></span>
                 <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-300 text-[11px]">Incident Spot</span></span>
                 <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-slate-300 text-[11px]">Destination</span></span>
-                <button type="button" id="btnResetMapView" class="px-2.5 py-1 rounded-lg bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-[11px] font-semibold border border-[#1e294b] transition">
+                <button type="button" id="btnResetMapView" class="px-2.5 py-1 rounded-lg bg-[#33215c] hover:bg-[#3d276e] text-slate-300 text-[11px] font-semibold border border-[#33215c] transition">
                     Fit Bounds
                 </button>
             </div>
         </div>
 
-        <div id="shipmentMap" class="h-[420px] w-full bg-[#080f24] relative z-0"></div>
+        <div id="shipmentMap" class="h-[420px] w-full bg-[#120b24] relative z-0"></div>
     </div>
 
     <!-- Operator Exception Management Section -->
-    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl p-5">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1e294b]">
+    <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#33215c]">
             <div>
                 <h3 class="text-sm font-bold text-white flex items-center space-x-2">
                     <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
@@ -399,14 +399,14 @@
                     $excSeverity = strtoupper(trim($exc->severity));
                 @endphp
                 <div class="p-4 rounded-xl border transition
-                    @if($excStatus === 'RESOLVED') bg-[#080f24] border-[#1e294b]
+                    @if($excStatus === 'RESOLVED') bg-[#120b24] border-[#33215c]
                     @elseif($excStatus === 'INVESTIGATING') bg-purple-950/20 border-purple-800/70
                     @else bg-rose-950/25 border-rose-900/70 @endif">
 
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div class="flex flex-wrap items-center gap-2">
                             <!-- Type Badge -->
-                            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold text-white bg-[#1e294b] border border-[#1e294b]">
+                            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold text-white bg-[#33215c] border border-[#33215c]">
                                 {{ $exc->type }}
                             </span>
 
@@ -437,13 +437,13 @@
 
                     <!-- Operator Action Controls: OPEN -> INVESTIGATING -> RESOLVED -->
                     @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
-                        <div class="mt-3.5 pt-3 border-t border-[#1e294b] flex flex-wrap items-center justify-end gap-2">
+                        <div class="mt-3.5 pt-3 border-t border-[#33215c] flex flex-wrap items-center justify-end gap-2">
                             @if($excStatus === 'OPEN')
                                 <!-- Form to Start Investigation -->
                                 <form action="{{ route('exceptions.investigate', $exc) }}" method="POST" class="inline-flex items-center space-x-1.5">
                                     @csrf
                                     <input type="text" name="investigation_notes" placeholder="Inquiry notes (e.g. Contacting customs broker)..." required
-                                        class="px-2.5 py-1 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500 w-56">
+                                        class="px-2.5 py-1 bg-[#120b24] border border-[#33215c] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500 w-56">
                                     <button type="submit" class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow transition">
                                         Start Investigation
                                     </button>
@@ -453,7 +453,7 @@
                                 <form action="{{ route('exceptions.resolve', $exc) }}" method="POST" class="inline-flex items-center space-x-1.5">
                                     @csrf
                                     <input type="text" name="resolution_notes" placeholder="Quick resolution notes..." required
-                                        class="px-2.5 py-1 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48">
+                                        class="px-2.5 py-1 bg-[#120b24] border border-[#33215c] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48">
                                     <button type="submit" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
                                         Resolve
                                     </button>
@@ -463,7 +463,7 @@
                                 <form action="{{ route('exceptions.resolve', $exc) }}" method="POST" class="inline-flex items-center space-x-2">
                                     @csrf
                                     <input type="text" name="resolution_notes" placeholder="Final resolution notes (e.g. Export certificate verified)..." required
-                                        class="px-3 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64">
+                                        class="px-3 py-1.5 bg-[#120b24] border border-[#33215c] rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64">
                                     <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
                                         Mark Resolved
                                     </button>
@@ -478,7 +478,7 @@
                     @endif
                 </div>
             @empty
-                <div class="text-center py-6 text-xs text-slate-500 bg-[#080f24]/60 rounded-xl border border-[#1e294b]">
+                <div class="text-center py-6 text-xs text-slate-500 bg-[#120b24]/60 rounded-xl border border-[#33215c]">
                     No active exceptions or operational holds reported on this consignment.
                 </div>
             @endforelse
@@ -488,12 +488,12 @@
     <!-- Two Columns: Manifest Items & Chronological Historical Timeline -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Manifest Items Table (1 col) -->
-        <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl p-5">
+        <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl p-5">
             <h3 class="text-sm font-bold text-white mb-3 flex items-center justify-between">
                 <span>Cargo Items Manifest</span>
                 <span class="text-xs text-pink-400 font-mono">{{ $shipment->items->count() }} items</span>
             </h3>
-            <div class="divide-y divide-[#1e294b]">
+            <div class="divide-y divide-[#33215c]">
                 @forelse($shipment->items as $item)
                     <div class="py-3 first:pt-0 last:pb-0">
                         <div class="flex items-center justify-between text-xs">
@@ -512,25 +512,25 @@
         </div>
 
         <!-- Historical Chronological Timeline (2 cols) -->
-        <div class="lg:col-span-2 bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl p-5">
+        <div class="lg:col-span-2 bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl p-5">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-sm font-bold text-white">Historical Tracking Timeline</h3>
                     <p class="text-[11px] text-slate-400">Chronological telemetry, milestones, and exception updates</p>
                 </div>
-                <span class="text-xs text-slate-400 font-mono bg-[#080f24] px-2.5 py-1 rounded-lg border border-[#1e294b]">
+                <span class="text-xs text-slate-400 font-mono bg-[#120b24] px-2.5 py-1 rounded-lg border border-[#33215c]">
                     {{ $timeline->count() }} Historical Events
                 </span>
             </div>
 
-            <div class="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#1e294b]">
+            <div class="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#33215c]">
                 @forelse($timeline as $event)
                     @php
                         $isExc = $event->isExceptionEvent();
                     @endphp
                     <div class="relative group">
                         <!-- Bullet Icon (Pink/Emerald for Normal, Pulsing Amber/Red for Exception) -->
-                        <div class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-[#101935] flex items-center justify-center
+                        <div class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-[#1c1236] flex items-center justify-center
                             @if($isExc) bg-rose-500 ring-4 ring-rose-500/20
                             @elseif($event->status === 'delivered') bg-emerald-500 ring-2 ring-emerald-500/30
                             @else bg-pink-500 @endif">
@@ -539,7 +539,7 @@
                         <!-- Card Box: Distinct border & background for Exception vs Normal -->
                         <div class="p-4 rounded-xl border transition
                             @if($isExc) bg-rose-950/20 border-rose-800/80 shadow-md shadow-rose-950/30
-                            @else bg-[#080f24] border-[#1e294b] hover:border-[#25335e] @endif">
+                            @else bg-[#120b24] border-[#33215c] hover:border-[#3d276e] @endif">
 
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <div class="flex items-center space-x-2">
@@ -555,7 +555,7 @@
                                             Operational Exception
                                         </span>
                                     @else
-                                        <span class="text-[10px] px-2 py-0.5 rounded bg-[#1e294b] text-slate-300 font-mono font-medium">
+                                        <span class="text-[10px] px-2 py-0.5 rounded bg-[#33215c] text-slate-300 font-mono font-medium">
                                             {{ $event->event_type }}
                                         </span>
                                     @endif
@@ -571,7 +571,7 @@
                                 {{ $event->description }}
                             </p>
 
-                            <div class="mt-2.5 pt-2 border-t border-[#1e294b] flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
+                            <div class="mt-2.5 pt-2 border-t border-[#33215c] flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
                                 @if($event->location)
                                     <span class="flex items-center space-x-1 text-slate-300">
                                         <svg class="w-3.5 h-3.5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -598,8 +598,8 @@
 <!-- Modal: Add Tracking Event (for Admin & Operator) -->
 @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
 <div id="eventModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#101935] border border-[#1e294b] rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1e294b]">
+    <div class="bg-[#1c1236] border border-[#33215c] rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-[#33215c]">
             <div>
                 <h3 class="text-base font-bold text-white">Add Historical Tracking Checkpoint</h3>
                 <p class="text-[11px] text-slate-400">Current Status: <strong class="text-pink-400 uppercase font-mono">{{ $shipment->current_status }}</strong></p>
@@ -615,7 +615,7 @@
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">
                     Lifecycle Status Transition *
                 </label>
-                <select name="status" id="eventStatus" required class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                <select name="status" id="eventStatus" required class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     <option value="{{ $shipment->current_status }}" selected>
                         Maintain Current Status: {{ strtoupper(str_replace('_', ' ', $shipment->current_status)) }} (Waypoint Checkpoint)
                     </option>
@@ -648,7 +648,7 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Event Type *</label>
-                    <select name="event_type" required class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="event_type" required class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="checkpoint">Waypoint Checkpoint</option>
                         <option value="departure">Vessel Departure</option>
                         <option value="arrival">Berthing / Port Arrival</option>
@@ -663,7 +663,7 @@
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Timestamp *</label>
                     <input type="datetime-local" name="event_time" id="eventTimeInput" value="{{ now()->format('Y-m-d\TH:i') }}" required
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     @php $lastEv = $timeline->last(); @endphp
                     @if($lastEv)
                         <p class="text-[9px] text-slate-500 mt-0.5">Min chronological: {{ $lastEv->event_time->format('M d, H:i') }}</p>
@@ -675,7 +675,7 @@
             <div>
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Port / Hub Location Node</label>
                 <select name="location_id" id="eventLocationSelect" onchange="autoFillCoords(this)"
-                    class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     <option value="" data-lat="" data-lng="">(Open Sea / Maritime Corridor - Custom Coords)</option>
                     @foreach($locations as $loc)
                         <option value="{{ $loc->id }}" data-lat="{{ $loc->latitude }}" data-lng="{{ $loc->longitude }}">
@@ -689,26 +689,26 @@
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Latitude</label>
                     <input type="number" step="0.000001" name="latitude" id="eventLatitude" placeholder="e.g. 1.290270"
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Longitude</label>
                     <input type="number" step="0.000001" name="longitude" id="eventLongitude" placeholder="e.g. 103.851959"
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Revised Estimated Arrival (Optional)</label>
                 <input type="datetime-local" name="estimated_arrival" value="{{ $shipment->estimated_arrival?->format('Y-m-d\TH:i') }}"
-                    class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
             </div>
 
             <!-- Description -->
             <div>
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Operational Description / Notes *</label>
                 <textarea name="description" rows="3" required placeholder="Enter waypoint details, telemetry or operational notes..."
-                    class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"></textarea>
+                    class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"></textarea>
             </div>
 
             <!-- Special Reversal Section (Only for Terminal DELIVERED status) -->
@@ -717,16 +717,16 @@
                     <div class="text-[11px] font-bold text-rose-300">Terminal Status Administrative Override</div>
                     <p class="text-[10px] text-slate-400">Reverting a DELIVERED shipment requires an Administrator role and an audited explanation.</p>
                     <label class="flex items-center space-x-2 text-xs text-slate-300">
-                        <input type="checkbox" name="allow_terminal_reversal" value="1" class="rounded bg-[#080f24] border-[#1e294b] text-rose-600">
+                        <input type="checkbox" name="allow_terminal_reversal" value="1" class="rounded bg-[#120b24] border-[#33215c] text-rose-600">
                         <span>Authorize Terminal Status Reversal</span>
                     </label>
                     <input type="text" name="reversal_reason" placeholder="Mandatory reversal justification reason..."
-                        class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none">
+                        class="w-full px-2.5 py-1.5 bg-[#120b24] border border-[#33215c] rounded-lg text-xs text-white focus:outline-none">
                 </div>
             @endif
 
             <div class="pt-3 flex justify-end space-x-2">
-                <button type="button" onclick="document.getElementById('eventModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-xs font-semibold">Cancel</button>
+                <button type="button" onclick="document.getElementById('eventModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 text-xs font-semibold">Cancel</button>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold shadow">
                     Append Historical Checkpoint
                 </button>
@@ -737,8 +737,8 @@
 
 <!-- Modal: Report Exception (for Admin & Operator) -->
 <div id="exceptionModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#101935] border border-[#1e294b] rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1e294b]">
+    <div class="bg-[#1c1236] border border-[#33215c] rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-[#33215c]">
             <div>
                 <h3 class="text-base font-bold text-white">Log Operational Exception</h3>
                 <p class="text-[11px] text-slate-400">Flag customs holds, weather delays, damage or congestion</p>
@@ -752,7 +752,7 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Exception Type *</label>
-                    <select name="type" required class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="type" required class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="CUSTOMS_HOLD">CUSTOMS_HOLD — Regulatory Inspection</option>
                         <option value="WEATHER_DELAY">WEATHER_DELAY — Severe Weather / Cyclone</option>
                         <option value="PORT_CONGESTION">PORT_CONGESTION — Berth Queuing</option>
@@ -763,7 +763,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Severity *</label>
-                    <select name="severity" required class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="severity" required class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="LOW">LOW</option>
                         <option value="MEDIUM" selected>MEDIUM</option>
                         <option value="HIGH">HIGH</option>
@@ -776,23 +776,23 @@
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detected Time *</label>
                     <input type="datetime-local" name="detected_at" value="{{ now()->format('Y-m-d\TH:i') }}" required
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Est. Delay Impact (Hours)</label>
                     <input type="number" name="estimated_delay_hours" min="0" placeholder="e.g. 24"
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1">Detailed Description *</label>
                 <textarea name="description" rows="3" required placeholder="Describe the incident, operational impact, and mitigation actions..."
-                    class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"></textarea>
+                    class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"></textarea>
             </div>
 
             <div class="pt-3 flex justify-end space-x-2">
-                <button type="button" onclick="document.getElementById('exceptionModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-xs font-semibold">Cancel</button>
+                <button type="button" onclick="document.getElementById('exceptionModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 text-xs font-semibold">Cancel</button>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow">
                     Submit Exception & Flag Timeline
                 </button>
@@ -924,8 +924,8 @@
         function createPopupContent(pt, colorHex) {
             return `
                 <div class="p-2.5 min-w-[240px] max-w-[280px] font-sans">
-                    <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-[#1e294b]">
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded ${pt.badge || 'bg-[#101935] text-slate-200'}">
+                    <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-[#33215c]">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded ${pt.badge || 'bg-[#1c1236] text-slate-200'}">
                             ${pt.status}
                         </span>
                         <span class="text-[10px] text-slate-400 font-mono">${pt.event_type || ''}</span>
@@ -934,7 +934,7 @@
                     <div class="text-[10px] text-pink-400 font-mono mt-0.5">
                         ${pt.city ? `${pt.city}, ` : ''}${pt.country || ''} &bull; [${pt.lat.toFixed(4)}, ${pt.lng.toFixed(4)}]
                     </div>
-                    <div class="mt-2 text-[11px] text-slate-300 leading-relaxed bg-[#080f24] p-2 rounded-lg border border-[#1e294b]">
+                    <div class="mt-2 text-[11px] text-slate-300 leading-relaxed bg-[#120b24] p-2 rounded-lg border border-[#33215c]">
                         ${pt.description}
                     </div>
                     <div class="mt-2 flex items-center justify-between text-[10px] text-slate-400">

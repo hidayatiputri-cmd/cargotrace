@@ -12,7 +12,7 @@
                         {{ __('messages.shipments.consignee_fleet') }}
                     </span>
                 @else
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-[#101935] text-slate-300 border border-[#1e294b]">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-[#1c1236] text-slate-300 border border-[#33215c]">
                         {{ __('messages.shipments.dispatch_grid') }}
                     </span>
                 @endif
@@ -27,7 +27,7 @@
         </div>
 
         @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
-            <a href="{{ route('shipments.create') }}" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white shadow-lg shadow-pink-500/25 transition">
+            <a href="{{ route('shipments.create') }}" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-pink-500 via-fuchsia-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white shadow-lg shadow-pink-500/25 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <span>{{ __('messages.shipments.register_new') }}</span>
             </a>
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Advanced Filter Console -->
-    <div class="bg-[#101935] p-5 rounded-2xl border border-[#1e294b] shadow-xl" x-data="{ expanded: {{ request()->hasAny(['origin_location_id', 'destination_location_id', 'delay_severity', 'has_exceptions', 'departure_from', 'departure_to', 'arrival_from', 'arrival_to']) ? 'true' : 'false' }} }">
+    <div class="bg-[#1c1236] p-5 rounded-2xl border border-[#33215c] shadow-xl" x-data="{ expanded: {{ request()->hasAny(['origin_location_id', 'destination_location_id', 'delay_severity', 'has_exceptions', 'departure_from', 'departure_to', 'arrival_from', 'arrival_to']) ? 'true' : 'false' }} }">
         <form method="GET" action="{{ route('shipments.index') }}" class="space-y-4">
             <!-- Primary Filter Row -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -43,13 +43,13 @@
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.search') }}</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('messages.shipments.search_placeholder') }}"
-                        class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
 
                 <!-- Status Filter with full Lifecycle -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.lifecycle_status') }}</label>
-                    <select name="status" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="status" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_lifecycle_stages') }}</option>
                         <option value="created" {{ request('status') === 'created' ? 'selected' : '' }}>{{ __('messages.status.created') }}</option>
                         <option value="booked" {{ request('status') === 'booked' ? 'selected' : '' }}>{{ __('messages.status.booked') }}</option>
@@ -64,7 +64,7 @@
                 <!-- Schedule Health / Delay -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.schedule_health') }}</label>
-                    <select name="is_delayed" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="is_delayed" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_schedules') }}</option>
                         <option value="1" {{ request('is_delayed') === '1' ? 'selected' : '' }}>{{ __('messages.shipments.delayed_only') }}</option>
                         <option value="0" {{ request('is_delayed') === '0' ? 'selected' : '' }}>{{ __('messages.shipments.on_time_only') }}</option>
@@ -74,7 +74,7 @@
                 <!-- Carrier Filter -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.carrier') }}</label>
-                    <select name="carrier_id" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="carrier_id" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_carriers') }}</option>
                         @foreach($carriers as $car)
                             <option value="{{ $car->id }}" {{ request('carrier_id') == $car->id ? 'selected' : '' }}>
@@ -86,25 +86,25 @@
 
                 <!-- Action & Expand Buttons -->
                 <div class="flex items-end space-x-2">
-                    <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-500/20 transition">
+                    <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-500/20 transition">
                         {{ __('messages.shipments.filter_btn') }}
                     </button>
-                    <button type="button" @click="expanded = !expanded" class="py-2 px-3 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 font-semibold text-xs border border-[#1e294b] transition flex items-center space-x-1" title="Toggle Advanced Filter Parameters">
+                    <button type="button" @click="expanded = !expanded" class="py-2 px-3 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 font-semibold text-xs border border-[#33215c] transition flex items-center space-x-1" title="Toggle Advanced Filter Parameters">
                         <span x-text="expanded ? '{{ __('messages.shipments.less_filters') }}' : '{{ __('messages.shipments.more_filters') }}'">{{ __('messages.shipments.more_filters') }}</span>
                         <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': expanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <a href="{{ route('shipments.index') }}" class="py-2 px-3 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-400 hover:text-white font-medium text-xs border border-[#1e294b] transition">
+                    <a href="{{ route('shipments.index') }}" class="py-2 px-3 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-400 hover:text-white font-medium text-xs border border-[#33215c] transition">
                         {{ __('messages.shipments.reset_btn') }}
                     </a>
                 </div>
             </div>
 
             <!-- Advanced Filter Drawer -->
-            <div x-show="expanded" x-cloak class="pt-3 border-t border-[#1e294b] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div x-show="expanded" x-cloak class="pt-3 border-t border-[#33215c] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <!-- Origin Hub -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.origin_hub') }}</label>
-                    <select name="origin_location_id" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="origin_location_id" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_origins') }}</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ request('origin_location_id') == $loc->id ? 'selected' : '' }}>
@@ -117,7 +117,7 @@
                 <!-- Destination Hub -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.destination_hub') }}</label>
-                    <select name="destination_location_id" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="destination_location_id" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_destinations') }}</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ request('destination_location_id') == $loc->id ? 'selected' : '' }}>
@@ -130,7 +130,7 @@
                 <!-- Delay Severity -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.delay_severity') }}</label>
-                    <select name="delay_severity" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="delay_severity" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_severities') }}</option>
                         <option value="NONE" {{ request('delay_severity') === 'NONE' ? 'selected' : '' }}>{{ __('messages.severity.none') }}</option>
                         <option value="LOW" {{ request('delay_severity') === 'LOW' ? 'selected' : '' }}>{{ __('messages.severity.low') }}</option>
@@ -142,7 +142,7 @@
                 <!-- Open Exceptions Filter -->
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.incident_exception') }}</label>
-                    <select name="has_exceptions" class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="has_exceptions" class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         <option value="">{{ __('messages.shipments.all_incident_statuses') }}</option>
                         <option value="1" {{ request('has_exceptions') === '1' ? 'selected' : '' }}>{{ __('messages.shipments.active_incidents') }}</option>
                         <option value="0" {{ request('has_exceptions') === '0' ? 'selected' : '' }}>{{ __('messages.shipments.incident_free') }}</option>
@@ -154,12 +154,12 @@
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.etd_from') }}</label>
                         <input type="date" name="departure_from" value="{{ request('departure_from') }}"
-                            class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                            class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.etd_to') }}</label>
                         <input type="date" name="departure_to" value="{{ request('departure_to') }}"
-                            class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                            class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -168,12 +168,12 @@
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.eta_from') }}</label>
                         <input type="date" name="arrival_from" value="{{ request('arrival_from') }}"
-                            class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                            class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ __('messages.shipments.eta_to') }}</label>
                         <input type="date" name="arrival_to" value="{{ request('arrival_to') }}"
-                            class="w-full px-3 py-2 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                            class="w-full px-3 py-2 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                 </div>
             </div>
@@ -181,10 +181,10 @@
     </div>
 
     <!-- Shipments Table -->
-    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl overflow-hidden">
+    <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-[#080f24] text-slate-400 uppercase tracking-wider font-semibold border-b border-[#1e294b]">
+                <thead class="bg-[#120b24] text-slate-400 uppercase tracking-wider font-semibold border-b border-[#33215c]">
                     <tr>
                         <th class="py-3.5 px-4">{{ __('messages.shipments.col_shipment') }}</th>
                         @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
@@ -198,9 +198,9 @@
                         <th class="py-3.5 px-4 text-right">{{ __('messages.shipments.col_actions') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1e294b]/60">
+                <tbody class="divide-y divide-[#33215c]/60">
                     @forelse($shipments as $s)
-                        <tr class="hover:bg-[#162244]/50 transition">
+                        <tr class="hover:bg-[#291a4d]/50 transition">
                             <td class="py-4 px-4 font-mono font-bold text-pink-400">
                                 <a href="{{ route('shipments.show', $s) }}" class="hover:underline flex items-center space-x-1.5">
                                     <span>{{ $s->shipment_number }}</span>
@@ -278,7 +278,7 @@
                                     {{ __('messages.shipments.view_timeline') }}
                                 </a>
                                 @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
-                                    <a href="{{ route('shipments.edit', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-xs border border-[#1e294b] transition">
+                                    <a href="{{ route('shipments.edit', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#33215c] hover:bg-[#3d276e] text-slate-300 text-xs border border-[#33215c] transition">
                                         {{ __('messages.shipments.edit') }}
                                     </a>
                                 @endif
@@ -297,7 +297,7 @@
 
         <!-- Pagination -->
         @if($shipments->hasPages())
-            <div class="p-4 border-t border-[#1e294b] bg-[#080f24]">
+            <div class="p-4 border-t border-[#33215c] bg-[#120b24]">
                 {{ $shipments->withQueryString()->links() }}
             </div>
         @endif

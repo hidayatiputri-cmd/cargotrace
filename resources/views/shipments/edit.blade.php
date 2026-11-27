@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <div class="flex items-center space-x-3">
-        <a href="{{ route('shipments.show', $shipment) }}" class="p-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 transition">
+        <a href="{{ route('shipments.show', $shipment) }}" class="p-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </a>
         <div>
@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl p-6 sm:p-8">
+    <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl p-6 sm:p-8">
         <form action="{{ route('shipments.update', $shipment) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
@@ -20,7 +20,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Customer</label>
-                    <select name="customer_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="customer_id" required class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         @foreach($customers as $c)
                             <option value="{{ $c->id }}" {{ old('customer_id', $shipment->customer_id) == $c->id ? 'selected' : '' }}>
                                 {{ $c->name }} ({{ $c->email }})
@@ -31,7 +31,7 @@
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Carrier Line</label>
-                    <select name="carrier_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="carrier_id" required class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         @foreach($carriers as $car)
                             <option value="{{ $car->id }}" {{ old('carrier_id', $shipment->carrier_id) == $car->id ? 'selected' : '' }}>
                                 {{ $car->name }} ({{ $car->code }})
@@ -44,7 +44,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Origin Port/Hub</label>
-                    <select name="origin_location_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="origin_location_id" required class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ old('origin_location_id', $shipment->origin_location_id) == $loc->id ? 'selected' : '' }}>
                                 {{ $loc->name }} ({{ $loc->code }})
@@ -55,7 +55,7 @@
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Destination Port/Hub</label>
-                    <select name="destination_location_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="destination_location_id" required class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}" {{ old('destination_location_id', $shipment->destination_location_id) == $loc->id ? 'selected' : '' }}>
                                 {{ $loc->name }} ({{ $loc->code }})
@@ -69,18 +69,18 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Cargo Classification</label>
                     <input type="text" name="cargo_type" value="{{ old('cargo_type', $shipment->cargo_type) }}" required
-                        class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Weight (kg)</label>
                     <input type="number" step="0.01" name="weight" value="{{ old('weight', $shipment->weight) }}" required
-                        class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Current Status</label>
-                    <select name="current_status" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                    <select name="current_status" required class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                         @foreach(['booked', 'in_transit', 'customs_hold', 'exception', 'out_for_delivery', 'delivered', 'cancelled'] as $st)
                             <option value="{{ $st }}" {{ old('current_status', $shipment->current_status) == $st ? 'selected' : '' }}>
                                 {{ ucfirst(str_replace('_', ' ', $st)) }}
@@ -94,23 +94,23 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Expected Departure (ETD)</label>
                     <input type="datetime-local" name="expected_departure" value="{{ old('expected_departure', $shipment->expected_departure->format('Y-m-d\TH:i')) }}" required
-                        class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Expected Arrival (ETA)</label>
                     <input type="datetime-local" name="expected_arrival" value="{{ old('expected_arrival', $shipment->expected_arrival->format('Y-m-d\TH:i')) }}" required
-                        class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Estimated Arrival (Revised)</label>
                     <input type="datetime-local" name="estimated_arrival" value="{{ old('estimated_arrival', $shipment->estimated_arrival?->format('Y-m-d\TH:i')) }}"
-                        class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
+                        class="w-full px-3.5 py-2.5 bg-[#120b24] border border-[#33215c] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                 </div>
             </div>
 
-            <div class="pt-4 border-t border-[#1e294b] flex items-center justify-between">
+            <div class="pt-4 border-t border-[#33215c] flex items-center justify-between">
                 <div>
                     @if(auth()->user()->isAdmin())
                         <form action="{{ route('shipments.destroy', $shipment) }}" method="POST" onsubmit="return confirm('Delete this shipment?');">
@@ -121,8 +121,8 @@
                     @endif
                 </div>
                 <div class="flex items-center space-x-2">
-                    <a href="{{ route('shipments.show', $shipment) }}" class="px-4 py-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-xs font-semibold">Cancel</a>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-600/20">Update Shipment</button>
+                    <a href="{{ route('shipments.show', $shipment) }}" class="px-4 py-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-slate-300 text-xs font-semibold">Cancel</a>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-600/20">Update Shipment</button>
                 </div>
             </div>
         </form>

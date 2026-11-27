@@ -9,15 +9,15 @@
         </div>
         <form action="{{ route('notifications.mark-all-read') }}" method="POST">
             @csrf
-            <button type="submit" class="px-3.5 py-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-xs font-semibold text-slate-300 border border-[#1e294b] transition">
+            <button type="submit" class="px-3.5 py-2 rounded-xl bg-[#33215c] hover:bg-[#3d276e] text-xs font-semibold text-slate-300 border border-[#33215c] transition">
                 Mark All as Read
             </button>
         </form>
     </div>
 
-    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-xl overflow-hidden divide-y divide-[#1e294b]">
+    <div class="bg-[#1c1236] rounded-2xl border border-[#33215c] shadow-xl overflow-hidden divide-y divide-[#33215c]">
         @forelse($notifications as $n)
-            <div class="p-4 sm:p-5 flex items-start justify-between gap-4 {{ $n->read_at ? 'opacity-70 bg-[#080f24]/50' : 'bg-[#101935]' }} hover:bg-[#162244] transition">
+            <div class="p-4 sm:p-5 flex items-start justify-between gap-4 {{ $n->read_at ? 'opacity-70 bg-[#120b24]/50' : 'bg-[#1c1236]' }} hover:bg-[#291a4d] transition">
                 <div class="flex items-start space-x-3.5">
                     <span class="mt-1 w-2.5 h-2.5 rounded-full shrink-0 {{ $n->read_at ? 'bg-slate-600' : 'bg-pink-400 animate-pulse' }}"></span>
                     <div>
@@ -43,7 +43,7 @@
                     <form action="{{ route('notifications.read', $n) }}" method="POST">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1e294b]" title="Mark as read">
+                        <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#33215c]" title="Mark as read">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         </button>
                     </form>
