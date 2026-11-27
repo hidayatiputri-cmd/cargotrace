@@ -4,12 +4,12 @@
 <div class="max-w-5xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center space-x-3">
-        <a href="{{ route('shipments.index') }}" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+        <a href="{{ route('shipments.index') }}" class="p-2 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </a>
         <div>
             <h1 class="text-2xl font-extrabold text-white">Create New Freight Consignment</h1>
-            <p class="text-xs text-slate-400">Initiate shipment lifecycle: <span class="font-mono text-cyan-400">CREATED &rarr; BOOKED &rarr; PICKED_UP &rarr; IN_TRANSIT &rarr; DELIVERED</span></p>
+            <p class="text-xs text-slate-400">Initiate shipment lifecycle: <span class="font-mono text-pink-400">CREATED &rarr; BOOKED &rarr; PICKED_UP &rarr; IN_TRANSIT &rarr; DELIVERED</span></p>
         </div>
     </div>
 
@@ -28,14 +28,14 @@
     @endif
 
     <!-- Form Card -->
-    <div class="bg-slate-900/90 rounded-2xl border border-slate-800 shadow-2xl p-6 sm:p-8">
+    <div class="bg-[#101935] rounded-2xl border border-[#1e294b] shadow-2xl p-6 sm:p-8">
         <form action="{{ route('shipments.store') }}" method="POST" id="shipmentForm" class="space-y-6">
             @csrf
 
             <!-- Section 1: Parties & Routing -->
             <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3 flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-pink-400 mb-3 flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-pink-500"></span>
                     <span>1. Consignment Parties & Routing</span>
                 </h3>
 
@@ -45,12 +45,12 @@
                             Shipment Number <span class="text-slate-500 font-normal">(Auto-generated if left blank)</span>
                         </label>
                         <input type="text" name="shipment_number" value="{{ old('shipment_number') }}" placeholder="e.g. CT-2026-SG-RT09"
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-mono text-cyan-300 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs font-mono text-pink-300 placeholder-slate-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Consignee Customer *</label>
-                        <select name="customer_id" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <select name="customer_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                             <option value="">Select Customer Account</option>
                             @foreach($customers as $c)
                                 <option value="{{ $c->id }}" {{ old('customer_id') == $c->id ? 'selected' : '' }}>
@@ -64,7 +64,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Carrier Line *</label>
-                        <select name="carrier_id" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <select name="carrier_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                             <option value="">Select Carrier</option>
                             @foreach($carriers as $car)
                                 <option value="{{ $car->id }}" {{ old('carrier_id') == $car->id ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Origin Port/Hub *</label>
-                        <select name="origin_location_id" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <select name="origin_location_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                             <option value="">Select Origin Node</option>
                             @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}" {{ old('origin_location_id') == $loc->id ? 'selected' : '' }}>
@@ -88,7 +88,7 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Destination Port/Hub *</label>
-                        <select name="destination_location_id" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <select name="destination_location_id" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                             <option value="">Select Destination Node</option>
                             @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}" {{ old('destination_location_id') == $loc->id ? 'selected' : '' }}>
@@ -101,9 +101,9 @@
             </div>
 
             <!-- Section 2: Specifications & Schedule -->
-            <div class="pt-4 border-t border-slate-800">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3 flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <div class="pt-4 border-t border-[#1e294b]">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-pink-400 mb-3 flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-pink-500"></span>
                     <span>2. Cargo Specifications & Lifecycle Status</span>
                 </h3>
 
@@ -111,26 +111,26 @@
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Cargo Classification *</label>
                         <input type="text" name="cargo_type" value="{{ old('cargo_type') }}" required placeholder="e.g. Semiconductor Wafers & Sensors"
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Total Weight (kg) *</label>
                         <input type="number" step="0.01" name="weight" id="totalWeight" value="{{ old('weight', 1000) }}" required
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Total Volume (m³) *</label>
                         <input type="number" step="0.01" name="volume" value="{{ old('volume', 25) }}" required
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Initial Lifecycle Status *</label>
-                        <select name="current_status" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-cyan-300 font-bold focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <select name="current_status" required class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-pink-400 font-bold focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                             <option value="created" {{ old('current_status', 'created') === 'created' ? 'selected' : '' }}>CREATED (Draft / Registered)</option>
                             <option value="booked" {{ old('current_status') === 'booked' ? 'selected' : '' }}>BOOKED (Carrier Slot Confirmed)</option>
                         </select>
@@ -140,38 +140,38 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Expected Departure (ETD) *</label>
                         <input type="datetime-local" name="expected_departure" value="{{ old('expected_departure', now()->format('Y-m-d\TH:i')) }}" required
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Expected Arrival (ETA) *</label>
                         <input type="datetime-local" name="expected_arrival" value="{{ old('expected_arrival', now()->addDays(7)->format('Y-m-d\TH:i')) }}" required
-                            class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            class="w-full px-3.5 py-2.5 bg-[#080f24] border border-[#1e294b] rounded-xl text-xs text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none">
                     </div>
                 </div>
             </div>
 
             <!-- Section 3: Dynamic Cargo Items Manifes -->
-            <div class="pt-4 border-t border-slate-800">
+            <div class="pt-4 border-t border-[#1e294b]">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center space-x-2">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-pink-500"></span>
                             <span>3. Cargo Items Manifest (shipment_items)</span>
                         </h3>
                         <p class="text-[11px] text-slate-400">Add detailed packaging breakdown, descriptions, and weights for customs</p>
                     </div>
 
                     <button type="button" onclick="addItemRow()"
-                        class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 border border-slate-700 text-xs font-bold transition">
+                        class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#1e294b] hover:bg-[#25335e] text-pink-400 hover:text-pink-300 border border-[#1e294b] text-xs font-bold transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         <span>Add Item Row</span>
                     </button>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-xl border border-[#1e294b]">
                     <table class="w-full text-left text-xs" id="itemsTable">
-                        <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
+                        <thead class="bg-[#080f24] text-slate-400 uppercase tracking-wider font-semibold border-b border-[#1e294b]">
                             <tr>
                                 <th class="py-2.5 px-3 w-1/3">Item Name *</th>
                                 <th class="py-2.5 px-3 w-24">Quantity *</th>
@@ -180,24 +180,24 @@
                                 <th class="py-2.5 px-3 text-right w-16">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="itemsTableBody" class="divide-y divide-slate-800">
+                        <tbody id="itemsTableBody" class="divide-y divide-[#1e294b]">
                             <!-- Row 0 (Default) -->
-                            <tr class="item-row bg-slate-950/40">
+                            <tr class="item-row bg-[#101935]">
                                 <td class="py-2.5 px-3">
                                     <input type="text" name="items[0][item_name]" value="{{ old('items.0.item_name', 'Industrial Microprocessor Modules') }}" required placeholder="e.g. Server Racks"
-                                        class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                                        class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
                                 </td>
                                 <td class="py-2.5 px-3">
                                     <input type="number" name="items[0][quantity]" value="{{ old('items.0.quantity', 20) }}" min="1" required
-                                        class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                                        class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
                                 </td>
                                 <td class="py-2.5 px-3">
                                     <input type="number" step="0.01" name="items[0][weight]" value="{{ old('items.0.weight', 600) }}"
-                                        class="item-weight w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                                        class="item-weight w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
                                 </td>
                                 <td class="py-2.5 px-3">
                                     <input type="text" name="items[0][description]" value="{{ old('items.0.description', 'Cleanroom sealed packaging') }}" placeholder="Packaging, Hazmat notes..."
-                                        class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                                        class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
                                 </td>
                                 <td class="py-2.5 px-3 text-right">
                                     <button type="button" onclick="removeItemRow(this)" class="p-1 rounded text-slate-500 hover:text-rose-400" title="Remove">
@@ -211,9 +211,9 @@
             </div>
 
             <!-- Submit -->
-            <div class="pt-4 border-t border-slate-800 flex items-center justify-end space-x-3">
-                <a href="{{ route('shipments.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</a>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20">
+            <div class="pt-4 border-t border-[#1e294b] flex items-center justify-end space-x-3">
+                <a href="{{ route('shipments.index') }}" class="px-5 py-2.5 rounded-xl bg-[#1e294b] hover:bg-[#25335e] text-slate-300 text-xs font-semibold">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-600/20">
                     Register Shipment & Initialize Lifecycle
                 </button>
             </div>
@@ -227,23 +227,23 @@
     function addItemRow() {
         const tbody = document.getElementById('itemsTableBody');
         const row = document.createElement('tr');
-        row.className = 'item-row bg-slate-950/40';
+        row.className = 'item-row bg-[#101935]';
         row.innerHTML = `
             <td class="py-2.5 px-3">
                 <input type="text" name="items[${itemIndex}][item_name]" required placeholder="Item Name"
-                    class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
             </td>
             <td class="py-2.5 px-3">
                 <input type="number" name="items[${itemIndex}][quantity]" value="1" min="1" required
-                    class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
             </td>
             <td class="py-2.5 px-3">
                 <input type="number" step="0.01" name="items[${itemIndex}][weight]" value="100"
-                    class="item-weight w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    class="item-weight w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
             </td>
             <td class="py-2.5 px-3">
                 <input type="text" name="items[${itemIndex}][description]" placeholder="Description / Specs"
-                    class="w-full px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    class="w-full px-2.5 py-1.5 bg-[#080f24] border border-[#1e294b] rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500">
             </td>
             <td class="py-2.5 px-3 text-right">
                 <button type="button" onclick="removeItemRow(this)" class="p-1 rounded text-slate-500 hover:text-rose-400" title="Remove">

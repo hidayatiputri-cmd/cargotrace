@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#080f24] text-slate-100">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Tailwind CSS CDN fallback for guaranteed rendering + Leaflet Map CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -18,16 +19,24 @@
                         sans: ['Plus Jakarta Sans', 'sans-serif'],
                     },
                     colors: {
+                        navy: {
+                            950: '#080f24',
+                            900: '#101935',
+                            800: '#1e294b',
+                            700: '#273561',
+                            600: '#34457c',
+                        },
                         brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            200: '#b9dffe',
-                            400: '#38bdf8',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                            800: '#0c4a6e',
-                            900: '#082f49',
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
                         }
                     }
                 }
@@ -39,53 +48,53 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-            background-color: #1e293b;
+            background-color: #101935;
             color: #f1f5f9;
-            border: 1px solid #334155;
+            border: 1px solid #1e294b;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
-<body class="h-full flex flex-col bg-slate-950 text-slate-200 antialiased selection:bg-cyan-500 selection:text-white">
+<body class="h-full flex flex-col bg-[#080f24] text-slate-200 antialiased selection:bg-pink-500 selection:text-white">
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+    <header class="sticky top-0 z-50 bg-[#101935]/90 backdrop-blur border-b border-[#1e294b]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Brand / Logo -->
                 <div class="flex items-center space-x-8">
                     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-lg shadow-pink-500/20 group-hover:scale-105 transition">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                         </div>
                         <div>
                             <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">CargoTrace</span>
-                            <span class="hidden sm:inline-block text-[10px] uppercase tracking-wider text-cyan-400 font-bold ml-2 px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-800/60">{{ __('messages.app.platform_subtitle') }}</span>
+                            <span class="hidden sm:inline-block text-[10px] uppercase tracking-wider text-pink-400 font-bold ml-2 px-1.5 py-0.5 rounded bg-pink-950/60 border border-pink-800/60">{{ __('messages.app.platform_subtitle') }}</span>
                         </div>
                     </a>
 
                     <!-- Nav Links -->
                     @auth
                     <nav class="hidden md:flex items-center space-x-1">
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('dashboard') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                             {{ __('messages.nav.dashboard') }}
                         </a>
-                        <a href="{{ route('shipments.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('shipments.*') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                        <a href="{{ route('shipments.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('shipments.*') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                             {{ __('messages.nav.shipments') }}
                         </a>
 
                         @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.carriers.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.carriers.*') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                            <a href="{{ route('admin.carriers.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.carriers.*') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                                 {{ __('messages.nav.carriers') }}
                             </a>
-                            <a href="{{ route('admin.locations.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.locations.*') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                            <a href="{{ route('admin.locations.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.locations.*') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                                 {{ __('messages.nav.locations') }}
                             </a>
-                            <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.users.*') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                            <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.users.*') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                                 {{ __('messages.nav.users') }}
                             </a>
-                            <a href="{{ route('admin.audit-logs.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-slate-800 text-cyan-400 font-semibold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                            <a href="{{ route('admin.audit-logs.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#1e294b] text-pink-400 font-semibold' : 'text-slate-300 hover:bg-[#162244] hover:text-white' }}">
                                 {{ __('messages.nav.audit_logs') }}
                             </a>
                         @endif
@@ -96,14 +105,14 @@
                 <!-- Right Header Actions -->
                 <div class="flex items-center space-x-3">
                     <!-- Language Switcher -->
-                    <div class="flex items-center space-x-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/60 text-xs font-bold" title="{{ __('messages.nav.language') }}">
-                        <a href="{{ route('locale.switch', 'en') }}" class="px-2 py-0.5 rounded-lg transition {{ app()->getLocale() === 'en' ? 'bg-cyan-500 text-slate-950 font-extrabold shadow' : 'text-slate-400 hover:text-white' }}" title="{{ __('messages.nav.english') }}">EN</a>
-                        <a href="{{ route('locale.switch', 'id') }}" class="px-2 py-0.5 rounded-lg transition {{ app()->getLocale() === 'id' ? 'bg-cyan-500 text-slate-950 font-extrabold shadow' : 'text-slate-400 hover:text-white' }}" title="{{ __('messages.nav.indonesian') }}">ID</a>
+                    <div class="flex items-center space-x-1 p-1 bg-[#080f24] rounded-xl border border-[#1e294b] text-xs font-bold" title="{{ __('messages.nav.language') }}">
+                        <a href="{{ route('locale.switch', 'en') }}" class="px-2 py-0.5 rounded-lg transition {{ app()->getLocale() === 'en' ? 'bg-pink-500 text-white font-extrabold shadow shadow-pink-500/20' : 'text-slate-400 hover:text-white' }}" title="{{ __('messages.nav.english') }}">EN</a>
+                        <a href="{{ route('locale.switch', 'id') }}" class="px-2 py-0.5 rounded-lg transition {{ app()->getLocale() === 'id' ? 'bg-pink-500 text-white font-extrabold shadow shadow-pink-500/20' : 'text-slate-400 hover:text-white' }}" title="{{ __('messages.nav.indonesian') }}">ID</a>
                     </div>
 
                     @auth
                         @if(auth()->user()->isAdmin() || auth()->user()->isOperator())
-                            <a href="{{ route('shipments.create') }}" class="hidden sm:inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-md shadow-cyan-500/20 transition">
+                            <a href="{{ route('shipments.create') }}" class="hidden sm:inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white shadow-md shadow-pink-500/20 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 <span>{{ __('messages.nav.new_shipment') }}</span>
                             </a>
@@ -113,7 +122,7 @@
                         @php
                             $unreadCount = auth()->user()->notifications()->unread()->count();
                         @endphp
-                        <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition" title="{{ __('messages.nav.notifications') }}">
+                        <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-[#1e294b] transition" title="{{ __('messages.nav.notifications') }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
@@ -125,7 +134,7 @@
                         </a>
 
                         <!-- User Profile Badge & Logout -->
-                        <div class="flex items-center space-x-3 pl-3 border-l border-slate-800">
+                        <div class="flex items-center space-x-3 pl-3 border-l border-[#1e294b]">
                             <div class="text-right hidden sm:block">
                                 <div class="text-xs font-bold text-slate-200">{{ auth()->user()->name }}</div>
                                 <div class="text-[10px] uppercase font-semibold">
@@ -134,13 +143,13 @@
                                     @elseif(auth()->user()->isOperator())
                                         <span class="text-amber-400">{{ __('messages.nav.role_operator') }}</span>
                                     @else
-                                        <span class="text-cyan-400">{{ __('messages.nav.role_customer') }}</span>
+                                        <span class="text-pink-400">{{ __('messages.nav.role_customer') }}</span>
                                     @endif
                                 </div>
                             </div>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition" title="{{ __('messages.nav.logout') }}">
+                                <button type="submit" class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-[#1e294b] transition" title="{{ __('messages.nav.logout') }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                     </svg>
@@ -148,7 +157,7 @@
                             </form>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-sm font-semibold bg-cyan-600 hover:bg-cyan-500 text-white transition">{{ __('messages.nav.sign_in') }}</a>
+                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-sm font-semibold bg-pink-600 hover:bg-pink-500 text-white shadow shadow-pink-500/20 transition">{{ __('messages.nav.sign_in') }}</a>
                     @endauth
                 </div>
             </div>
@@ -183,15 +192,15 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-950 border-t border-slate-900 py-6 mt-12 text-center text-xs text-slate-500">
+    <footer class="bg-[#080f24] border-t border-[#1e294b] py-6 mt-12 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
                 <span class="font-bold text-slate-400">CargoTrace</span> &copy; {{ date('Y') }} — Global Shipment Visibility & Tracking Platform
             </div>
             <div class="flex items-center space-x-4 text-[11px]">
-                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">Laravel 12 + Sanctum</span>
-                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">Layered Architecture</span>
-                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">MySQL 8.0</span>
+                <span class="px-2 py-0.5 rounded bg-[#101935] border border-[#1e294b]">Laravel 12 + Sanctum</span>
+                <span class="px-2 py-0.5 rounded bg-[#101935] border border-[#1e294b]">Layered Architecture</span>
+                <span class="px-2 py-0.5 rounded bg-[#101935] border border-[#1e294b]">MySQL 8.0</span>
             </div>
         </div>
     </footer>
